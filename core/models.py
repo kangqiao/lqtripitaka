@@ -4,6 +4,11 @@ from django.db import models
 
 from django.db import models
 
+'''
+ref
+https://docs.djangoproject.com/en/1.11/ref/models/fields/#
+'''
+
 class Translator(models.Model):
     TRANSLATOR = 'TS'
     AUTHOR = 'AH'
@@ -20,19 +25,19 @@ class Translator(models.Model):
     name = models.CharField(max_length=64, verbose_name='作译者名字')
     nameA = models.CharField(max_length=64, verbose_name='名字A')
     nameB = models.CharField(max_length=64, verbose_name='名字B')
-    remark = models.TextField(blank=True, verbose_name='备注')
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
 
 
 class Page(models.Model):
     name = models.CharField(max_length=64, verbose_name='页码')
-    series = models.ForeignKey('Series', verbose_name='部')
-    volume = models.ForeignKey('Volume', verbose_name='册')
-    sutra = models.ForeignKey('Sutra', verbose_name='经')
-    roll = models.ForeignKey('Roll', verbose_name='卷')
-    pre_page = models.ForeignKey('Page', verbose_name='上一页')
-    next_page = models.ForeignKey('Page', verbose_name='下一页')
-    resource = models.CharField(max_length=128, verbose_name='资源')
+    series = models.OneToOneField('Series', null=True, blank=True, verbose_name='部')
+    volume = models.OneToOneField('Volume', null=True, blank=True, verbose_name='册')
+    sutra = models.OneToOneField('Sutra', null=True, blank=True, verbose_name='经')
+    roll = models.OneToOneField('Roll', null=True, blank=True, verbose_name='卷')
+    pre_page = models.OneToOneField('Page', null=True, blank=True, related_name='page_pre_page', verbose_name='上一页')
+    next_page = models.OneToOneField('Page', null=True, blank=True, related_name='page_next_page',  verbose_name='下一页')
+    resource = models.CharField(max_length=128, blank=True, verbose_name='资源')
 
 class Series(models.Model):
     SERIES = 'SS'
@@ -57,15 +62,15 @@ class Series(models.Model):
     publish_edition = models.SmallIntegerField(verbose_name="版次")
     publish_prints = models.SmallIntegerField(verbose_name="印次")
     publish_ISBN = models.CharField(max_length=64, verbose_name="ISBN")
-    remark = models.TextField(verbose_name='备注')
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
 
 class Volume(models.Model):
     name = models.CharField(max_length=64, verbose_name='册名')
-    series = models.ForeignKey(Series, verbose_name='版本')
-    start_page = models.ForeignKey('Page', verbose_name="起始页")
-    end_page = models.ForeignKey('Page', verbose_name='终止页')
-    remark = models.TextField(verbose_name='备注')
+    series = models.ForeignKey(Series, null=True, blank=True, verbose_name='版本')
+    start_page = models.OneToOneField('Page', null=True, blank=True, related_name='volume_start_page', verbose_name="起始页")
+    end_page = models.OneToOneField('Page', null=True, blank=True, related_name='volume_end_page', verbose_name='终止页')
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
     # 册PDF文件
 
 
@@ -85,23 +90,23 @@ class Sutra(models.Model):
         default=SUTTA,
         verbose_name='类型'
     )
-    series = models.ForeignKey(Series, verbose_name='版本')
+    series = models.ForeignKey(Series, null=True, blank=True, verbose_name='版本')
     translator = models.ForeignKey(Translator, verbose_name='作译者')
     dynasty = models.CharField(max_length=64, verbose_name="朝代")
     historic_site = models.CharField(max_length=64, verbose_name="刻经地点")
     roll_count = models.IntegerField(verbose_name='卷数')
-    start_page = models.ForeignKey('Page', verbose_name="起始页")
-    end_page = models.ForeignKey('Page', verbose_name='终止页')
+    start_page = models.OneToOneField('Page', null=True, blank=True, related_name='sutra_start_page', verbose_name="起始页")
+    end_page = models.OneToOneField('Page', null=True, blank=True, related_name='sutra_end_page', verbose_name='终止页')
     qianziwen = models.CharField(max_length=8, verbose_name='千字文')
-    remark = models.TextField(verbose_name='备注')
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
     # 册PDF文件
 
 
 class Roll(models.Model):
     name = models.CharField(max_length=64, verbose_name='卷名')
-    sutra = models.ForeignKey(Sutra, verbose_name='经')
+    sutra = models.ForeignKey(Sutra, null=True, blank=True, verbose_name='经')
     page_count = models.IntegerField(verbose_name='页数')
-    start_page = models.ForeignKey('Page', verbose_name="起始页")
-    end_page = models.ForeignKey('Page', verbose_name='终止页')
+    start_page = models.OneToOneField('Page', null=True, blank=True, related_name='roll_start_page', verbose_name="起始页")
+    end_page = models.OneToOneField('Page', null=True, blank=True, related_name='roll_end_page', verbose_name='终止页')
     qianziwen = models.CharField(max_length=8, verbose_name='千字文')
-    remark = models.TextField(verbose_name='备注')
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
