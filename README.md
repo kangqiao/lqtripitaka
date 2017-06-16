@@ -61,4 +61,4 @@ password: `1q2w3e4r
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser, the admin user password is admin
 
-
+[xadmin 首页](https://github.com/kangqiao/lqtripitaka/blob/master/xadmin_main.png)
