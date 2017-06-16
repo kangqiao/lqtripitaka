@@ -3,10 +3,11 @@ from django.db import models
 # Create your models here.
 
 from django.db import models
+import uuid
 
 '''
-ref
-https://docs.djangoproject.com/en/1.11/ref/models/fields/#
+[Django API](https://docs.djangoproject.com/en/1.11/)
+[Django中null和blank的区别](http://www.tuicool.com/articles/2ABJbmj)
 '''
 
 
@@ -17,22 +18,24 @@ class Series(models.Model):
         (SERIES, '藏经丛书'),
         (OFFPRINT, '单行本'),
     )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='版本名')
-    dynasty = models.CharField(max_length=64, blank=True, verbose_name="朝代")
-    historic_site = models.CharField(max_length=64, blank=True, verbose_name="刻经地点")
     type = models.CharField(
         max_length=2,
         choices=TYPE_CHOICES,
         default=SERIES,
         verbose_name='版本类型'
     )
-    volume_count = models.IntegerField(verbose_name="册数")
-    sutra_count = models.IntegerField(verbose_name="经数")
-    publish_name = models.CharField(max_length=64, blank=True, verbose_name="出版社")
-    publish_date = models.DateField(blank=True, verbose_name="出版时间")
-    publish_edition = models.SmallIntegerField(blank=True, verbose_name="版次")
-    publish_prints = models.SmallIntegerField(blank=True, verbose_name="印次")
-    publish_ISBN = models.CharField(max_length=64, blank=True, verbose_name="ISBN")
+    volume_count = models.IntegerField(null=True, blank=True, verbose_name="册数")
+    sutra_count = models.IntegerField(null=True, blank=True, verbose_name="经数")
+    dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="朝代")
+    historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="刻经地点")
+    publish_name = models.CharField(max_length=64, null=True, blank=True, verbose_name="出版社")
+    publish_date = models.DateField(null=True, blank=True, verbose_name="出版时间")
+    publish_edition = models.SmallIntegerField(null=True, blank=True, verbose_name="版次")
+    publish_prints = models.SmallIntegerField(null=True, blank=True, verbose_name="印次")
+    publish_ISBN = models.CharField(max_length=64, null=True, blank=True, verbose_name="ISBN")
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def __str__(self):
@@ -44,10 +47,12 @@ class Series(models.Model):
 
 
 class Volume(models.Model):
-    name = models.CharField(max_length=64, verbose_name='册号')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
+    name = models.CharField(max_length=64, verbose_name='册名')
     series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='版本')
-    start_page = models.ForeignKey('Page', null=True, blank=True, related_name='volume_start_page', verbose_name="起始页")
-    end_page = models.ForeignKey('Page', null=True, blank=True, related_name='volume_end_page', verbose_name='终止页')
+    start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
+    end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def __str__(self):
@@ -68,8 +73,9 @@ class Sutra(models.Model):
         (RESTRAIN, '律'),
         (TREATISE, '论'),
     )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='经名')
-    name2 = models.CharField(max_length=64, blank=True, verbose_name='经号')
     type = models.CharField(
         max_length=2,
         choices=TYPE_CHOICES,
@@ -77,14 +83,14 @@ class Sutra(models.Model):
         verbose_name='类型'
     )
     series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='版本')
-    clazz = models.CharField(max_length=64, blank=True, verbose_name="部别")
-    translator = models.ForeignKey('Translator', blank=True, verbose_name='作译者')
-    dynasty = models.CharField(max_length=64, blank=True, verbose_name="朝代")
-    historic_site = models.CharField(max_length=64, blank=True, verbose_name="刻经地点")
-    roll_count = models.IntegerField(verbose_name='卷数')
-    start_page = models.ForeignKey('Page', null=True, blank=True, related_name='sutra_start_page', verbose_name="起始页")
-    end_page = models.ForeignKey('Page', null=True, blank=True, related_name='sutra_end_page', verbose_name='终止页')
-    qianziwen = models.CharField(max_length=8, blank=True, verbose_name='千字文')
+    clazz = models.CharField(max_length=64, null=True, blank=True, verbose_name="部别")
+    translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
+    dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="朝代")
+    historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="译经地点")
+    roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
+    start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
+    end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
+    qianziwen = models.CharField(max_length=8, null=True, blank=True, verbose_name='千字文')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def __str__(self):
@@ -97,13 +103,15 @@ class Sutra(models.Model):
 
 
 class Roll(models.Model):
-    name = models.CharField(max_length=64, verbose_name='卷号')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
+    name = models.CharField(max_length=64, verbose_name='卷名')
     series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='版本')
     sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
-    page_count = models.IntegerField(verbose_name='页数')
-    start_page = models.ForeignObject('Page', null=True, blank=True,  related_name='roll_start_page', verbose_name="起始页")
-    end_page = models.ForeignKey('Page', null=True, blank=True, related_name='roll_end_page', verbose_name='终止页')
-    qianziwen = models.CharField(max_length=8, blank=True, verbose_name='千字文')
+    page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
+    start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
+    end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
+    qianziwen = models.CharField(max_length=8, null=True, blank=True, verbose_name='千字文')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def __str__(self):
@@ -116,15 +124,15 @@ class Roll(models.Model):
 
 
 class Page(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='页码')
     series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='部')
     volume = models.ForeignKey(Volume, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='册')
     sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
     roll = models.ForeignKey(Roll, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='卷')
-    pre_page = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL,
-                                 related_name='page_pre_page', verbose_name='上一页')
-    next_page = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL,
-                                  related_name='page_next_page', verbose_name='下一页')
+    pre_page = models.UUIDField(null=True, blank=True, verbose_name='上一页')
+    next_page = models.UUIDField(null=True, blank=True, verbose_name='下一页')
 
     def __str__(self):
         return self.name
@@ -144,6 +152,7 @@ class PageResource(models.Model):
         (IMAGE, '图片'),
         (INSET, '插图'),
     )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     page = models.ForeignKey(Page, on_delete=models.CASCADE, verbose_name='页')
     type = models.CharField(
         max_length=2,
@@ -154,7 +163,11 @@ class PageResource(models.Model):
     resource = models.FileField(verbose_name='资源')
 
     def __str__(self):
-        return self.type
+        typeName = ""
+        for item in self.TYPE_CHOICES:
+            if self.type == item[0]:
+                typeName = item[1]
+        return typeName + " => " + self.resource.name
 
     class Meta:
         verbose_name = u"页资源"
@@ -168,15 +181,14 @@ class Translator(models.Model):
         (TRANSLATOR, '译者'),
         (AUTHOR, '作者'),
     )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=64, verbose_name='作译者名字')
     type = models.CharField(
         max_length=2,
         choices=TYPE_CHOICES,
         default=TRANSLATOR,
         verbose_name='类型'
     )
-    name = models.CharField(max_length=64, verbose_name='作译者名字')
-    nameA = models.CharField(max_length=64, blank=True, verbose_name='名字A')
-    nameB = models.CharField(max_length=64, blank=True, verbose_name='名字B')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def __str__(self):

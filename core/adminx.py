@@ -12,12 +12,13 @@ class MainDashboard(object):
     widgets = [
         [
             {"type": "html", "title": u"大藏经", "content": "<h3> 欢迎来到龙泉大藏经管理平台 </h3><p>项目地址: https://github.com/kangqiao/lqtripitaka<br/>QQ: 279197764</p>"},
-            {"type": "list", "model": "core.Series", "params": {"o": "-name"}},
-            {"type": "chart", "model": "core.accessrecord", "chart": "user_count","params": {"_p_date__gte": "2013-01-08", "p": 1, "_p_date__lt": "2013-01-29"}},
+            {"type": "list", "model": "core.Series", "params": {"o": "-code"}},
+            {"type": "chart", "model": "core.accessrecord", "chart": "user_count","params": {"_p_date__gte": "2017-01-01", "p": 1, "_p_date__lt": "2017-06-16"}},
         ],
         [
             {"type": "qbutton", "title": "Quick Start","btns": [{"model": Series}, {"model": Sutra}, {"title": "Google", "url": "http://www.google.com"}]},
-            {"type": "addform", "model": Series},
+            #{"type": "addform", "model": Series},
+            {"type": "list", "model": "core.Sutra", "params": {"o": "-code"}}
         ]
     ]
 
@@ -39,36 +40,36 @@ class GlobalSetting(object):
 
 @xadmin.sites.register(Series)
 class SeriesAdmin(object):
-    list_display = ("name", "type", "dynasty", "volume_count", "sutra_count", "publish_name", "publish_date")
-    list_display_links = ("name",)
-    search_fields = ["name", 'dynasty', 'type']
+    list_display = ("code", "name", "type", "dynasty", "volume_count", "sutra_count", "publish_name", "publish_date")
+    list_display_links = ("code", "name",)
+    search_fields = ["code", "name", 'dynasty', 'type', 'publish_name']
     relfield_style = "fk-select"
     reversion_enable = True
 
 
 @xadmin.sites.register(Volume)
 class VolumeAdmin(object):
-    list_display = ("name", "series", "remark")
-    list_display_links = ("name",)
-    search_fields = ["name"]
+    list_display = ("code", "name", "series", "remark")
+    list_display_links = ("code", "name",)
+    search_fields = ["code", "name"]
     relfield_style = "fk-select"
     reversion_enable = True
 
 
 @xadmin.sites.register(Sutra)
 class SutraAdmin(object):
-    list_display = ("name", "type", "series", "translator", "dynasty", "historic_site", "roll_count", "qianziwen")
-    list_display_links = ("name", "qianziwen")
-    search_fields = ["name", "type", "series", "translator", "dynasty", "historic_site", "qianziwen"]
+    list_display = ("code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "roll_count", "qianziwen")
+    list_display_links = ("code", "name",)
+    search_fields = ["code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "qianziwen"]
     relfield_style = "fk-select"
     reversion_enable = True
 
 
 @xadmin.sites.register(Roll)
 class RollAdmin(object):
-    list_display = ("name", "series", "sutra", "page_count", "qianziwen")
-    list_display_links = ("name",)
-    search_fields = ["name", "qianziwen"]
+    list_display = ("code", "name", "series", "sutra", "page_count", "qianziwen")
+    list_display_links = ("code", "name",)
+    search_fields = ["code", "name", "qianziwen"]
     relfield_style = "fk-select"
     reversion_enable = True
 
@@ -79,9 +80,9 @@ class PageResourceInline(object):
 
 @xadmin.sites.register(Page)
 class PageAdmin(object):
-    list_display = ("name", "series", "volume", "sutra", "roll", "pre_page", "next_page")
-    list_display_links = ("name",)
-    search_fields = ["name"]
+    list_display = ("code", "name", "series", "volume", "sutra", "roll", "pre_page", "next_page")
+    list_display_links = ("code", "name",)
+    search_fields = ["code", "name"]
     relfield_style = "fk-select"
     reversion_enable = True
     actions = [BatchChangeAction, ]
