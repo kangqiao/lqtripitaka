@@ -1,66 +1,23 @@
 from __future__ import absolute_import
 import xadmin
 from xadmin import views
-from .models import Translator, Series
+from .models import *
 from xadmin.layout import Main, TabHolder, Tab, Fieldset, Row, Col, AppendedText, Side
 from xadmin.plugins.inline import Inline
 from xadmin.plugins.batch import BatchChangeAction
 
-@xadmin.sites.register(views.website.IndexView)
-class MainDashboard(object):
-    pass
 
-@xadmin.sites.register(views.BaseAdminView)
-class BaseSetting(object):
-    enable_themes = True
-    use_bootswatch = True
-
-@xadmin.sites.register(views.CommAdminView)
-class GlobalSetting(object):
-    # global_search_models = [Host, IDC]
-    # global_models_icon = {
-    #     Host: "fa fa-laptop", IDC: "fa fa-cloud"
-    # }
-    menu_style = 'default'  # 'accordion'
-
-
-@xadmin.sites.register(Translator)
-class TranslatorAdmin(object):
-    list_display = ("name", "type", "nameA", "nameB")
-    list_display_links = ("name",)
-    wizard_form_list = [
-        ("First's Form",("name", "type", "nameA", "nameB")),
-        ("Second Form", ("remark",))
-    ]
-
-    search_fields = ["name"]
-    relfield_style = "fk-select"
-    reversion_enable = True
-
-    actions = [BatchChangeAction, ]
-    batch_fields = ("type", "groups")
-
-@xadmin.sites.register(Series)
-class SeriesAdmin(object):
-    list_display = ("name", "type", "dynasty", "volume_count", "sutra_count")
-    list_display_links = ("name",)
-    search_fields = ["name", 'dynasty', 'type']
-    relfield_style = "fk-select"
-    reversion_enable = True
-
-    batch_fields = ("type", "groups")
-'''
 @xadmin.sites.register(views.website.IndexView)
 class MainDashboard(object):
     widgets = [
         [
-            {"type": "html", "title": "Test Widget", "content": "<h3> Welcome to Xadmin! </h3><p>Join Online Group: <br/>QQ Qun : 282936295</p>"},
-            {"type": "chart", "model": "app.accessrecord", "chart": "user_count", "params": {"_p_date__gte": "2013-01-08", "p": 1, "_p_date__lt": "2013-01-29"}},
-            {"type": "list", "model": "app.host", "params": {"o": "-guarantee_date"}},
+            {"type": "html", "title": u"大藏经", "content": "<h3> 欢迎来到龙泉大藏经管理平台 </h3><p>项目地址: https://github.com/kangqiao/lqtripitaka<br/>QQ: 279197764</p>"},
+            {"type": "list", "model": "core.Series", "params": {"o": "-name"}},
+            {"type": "chart", "model": "core.accessrecord", "chart": "user_count","params": {"_p_date__gte": "2013-01-08", "p": 1, "_p_date__lt": "2013-01-29"}},
         ],
         [
-            {"type": "qbutton", "title": "Quick Start", "btns": [{"model": Host}, {"model": IDC}, {"title": "Google", "url": "http://www.google.com"}]},
-            {"type": "addform", "model": MaintainLog},
+            {"type": "qbutton", "title": "Quick Start","btns": [{"model": Series}, {"model": Sutra}, {"title": "Google", "url": "http://www.google.com"}]},
+            {"type": "addform", "model": Series},
         ]
     ]
 
@@ -73,169 +30,85 @@ class BaseSetting(object):
 
 @xadmin.sites.register(views.CommAdminView)
 class GlobalSetting(object):
-    global_search_models = [Host, IDC]
+    global_search_models = [Series, Sutra, Translator]
     global_models_icon = {
-        Host: "fa fa-laptop", IDC: "fa fa-cloud"
+        Series: "fa fa-laptop", Sutra: "fa fa-square", Volume: "fa fa-copy", Roll: "fa fa-bars", Page: "fa fa-pagelines", Translator: "fa fa-flag"
     }
     menu_style = 'default'  # 'accordion'
 
 
-class MaintainInline(object):
-    model = MaintainLog
-    extra = 1
-    style = "accordion"
-
-
-@xadmin.sites.register(IDC)
-class IDCAdmin(object):
-    list_display = ("name", "description", "create_time")
+@xadmin.sites.register(Series)
+class SeriesAdmin(object):
+    list_display = ("name", "type", "dynasty", "volume_count", "sutra_count", "publish_name", "publish_date")
     list_display_links = ("name",)
-    wizard_form_list = [
-        ("First's Form", ("name", "description")),
-        ("Second Form", ("contact", "telphone", "address")),
-        ("Thread Form", ("customer_id",))
-    ]
+    search_fields = ["name", 'dynasty', 'type']
+    relfield_style = "fk-select"
+    reversion_enable = True
 
+
+@xadmin.sites.register(Volume)
+class VolumeAdmin(object):
+    list_display = ("name", "series", "remark")
+    list_display_links = ("name",)
     search_fields = ["name"]
     relfield_style = "fk-select"
     reversion_enable = True
 
-    actions = [BatchChangeAction, ]
-    batch_fields = ("contact", "groups")
+
+@xadmin.sites.register(Sutra)
+class SutraAdmin(object):
+    list_display = ("name", "type", "series", "translator", "dynasty", "historic_site", "roll_count", "qianziwen")
+    list_display_links = ("name", "qianziwen")
+    search_fields = ["name", "type", "series", "translator", "dynasty", "historic_site", "qianziwen"]
+    relfield_style = "fk-select"
+    reversion_enable = True
 
 
-@xadmin.sites.register(Host)
-class HostAdmin(object):
-
-    def open_web(self, instance):
-        return """<a href="http://%s" target="_blank">Open</a>""" % instance.ip
-    open_web.short_description = "Acts"
-    open_web.allow_tags = True
-    open_web.is_column = True
-
-    list_display = (
-        "name", "idc", "guarantee_date", "service_type", "status", "open_web",
-        "description",
-    )
+@xadmin.sites.register(Roll)
+class RollAdmin(object):
+    list_display = ("name", "series", "sutra", "page_count", "qianziwen")
     list_display_links = ("name",)
+    search_fields = ["name", "qianziwen"]
+    relfield_style = "fk-select"
+    reversion_enable = True
 
-    raw_id_fields = ("idc",)
-    style_fields = {"system": "radio-inline"}
+class PageResourceInline(object):
+    model = PageResource
+    extra = 1
+    style = "accordion"
 
-    search_fields = ["name", "ip", "description"]
-    list_filter = [
-        "idc", "guarantee_date", "status", "brand", "model", "cpu", "core_num",
-        "hard_disk", "memory", (
-            "service_type",
-            xadmin.filters.MultiSelectFieldListFilter,
-        ),
+@xadmin.sites.register(Page)
+class PageAdmin(object):
+    list_display = ("name", "series", "volume", "sutra", "roll", "pre_page", "next_page")
+    list_display_links = ("name",)
+    search_fields = ["name"]
+    relfield_style = "fk-select"
+    reversion_enable = True
+    actions = [BatchChangeAction, ]
+
+    inlines = [PageResourceInline]
+
+
+@xadmin.sites.register(Translator)
+class TranslatorAdmin(object):
+    list_display = ("name", "type", "nameA", "nameB")
+    list_display_links = ("name",)
+    wizard_form_list = [
+        ("First's Form", ("name", "type", "nameA", "nameB")),
+        ("Second Form", ("remark",))
     ]
 
-    list_quick_filter = ["service_type", {"field": "idc__name", "limit": 10}]
-    list_bookmarks = [{
-        "title": "Need Guarantee",
-        "query": {"status__exact": 2},
-        "order": ("-guarantee_date",),
-        "cols": ("brand", "guarantee_date", "service_type"),
-    }]
-
-    show_detail_fields = ("idc",)
-    list_editable = (
-        "name", "idc", "guarantee_date", "service_type", "description",
-    )
-    save_as = True
-
-    aggregate_fields = {"guarantee_date": "min"}
-    grid_layouts = ("table", "thumbnails")
-
-    form_layout = (
-        Main(
-            TabHolder(
-                Tab(
-                    "Comm Fields",
-                    Fieldset(
-                        "Company data", "name", "idc",
-                        description="some comm fields, required",
-                    ),
-                    Inline(MaintainLog),
-                ),
-                Tab(
-                    "Extend Fields",
-                    Fieldset(
-                        "Contact details",
-                        "service_type",
-                        Row("brand", "model"),
-                        Row("cpu", "core_num"),
-                        Row(
-                            AppendedText("hard_disk", "G"),
-                            AppendedText("memory", "G")
-                        ),
-                        "guarantee_date"
-                    ),
-                ),
-            ),
-        ),
-        Side(
-            Fieldset("Status data", "status", "ssh_port", "ip"),
-        )
-    )
-    inlines = [MaintainInline]
+    search_fields = ["name", "type", "nameA", "nameB"]
+    relfield_style = "fk-select"
     reversion_enable = True
-
-    data_charts = {
-        "host_service_type_counts": {'title': u"Host service type count", "x-field": "service_type", "y-field": ("service_type",),
-                                     "option": {
-                                         "series": {"bars": {"align": "center", "barWidth": 0.8, 'show': True}},
-                                         "xaxis": {"aggregate": "count", "mode": "categories"},
-        },
-        },
-    }
-
-
-@xadmin.sites.register(HostGroup)
-class HostGroupAdmin(object):
-    list_display = ("name", "description")
-    list_display_links = ("name",)
-
-    search_fields = ["name"]
-    style_fields = {"hosts": "checkbox-inline"}
-
-
-@xadmin.sites.register(MaintainLog)
-class MaintainLogAdmin(object):
-    list_display = (
-        "host", "maintain_type", "hard_type", "time", "operator", "note")
-    list_display_links = ("host",)
-
-    list_filter = ["host", "maintain_type", "hard_type", "time", "operator"]
-    search_fields = ["note"]
-
-    form_layout = (
-        Col("col2",
-            Fieldset("Record data",
-                     "time", "note",
-                     css_class="unsort short_label no_title"
-                     ),
-            span=9, horizontal=True
-            ),
-        Col("col1",
-            Fieldset("Comm data",
-                     "host", "maintain_type"
-                     ),
-            Fieldset("Maintain details",
-                     "hard_type", "operator"
-                     ),
-            span=3
-            )
-    )
-    reversion_enable = True
+    actions = [BatchChangeAction, ]
 
 
 @xadmin.sites.register(AccessRecord)
 class AccessRecordAdmin(object):
-
     def avg_count(self, instance):
         return int(instance.view_count / instance.user_count)
+
     avg_count.short_description = "Avg Count"
     avg_count.allow_tags = True
     avg_count.is_column = True
@@ -249,22 +122,24 @@ class AccessRecordAdmin(object):
 
     refresh_times = (3, 5, 10)
     data_charts = {
-        "user_count": {'title': u"User Report", "x-field": "date", "y-field": ("user_count", "view_count"), "order": ('date',)},
+        "user_count": {'title': u"User Report", "x-field": "date", "y-field": ("user_count", "view_count"),
+                       "order": ('date',)},
         "avg_count": {'title': u"Avg Report", "x-field": "date", "y-field": ('avg_count',), "order": ('date',)},
-        "per_month": {'title': u"Monthly Users", "x-field": "_chart_month", "y-field": ("user_count", ),
+        "per_month": {'title': u"Monthly Users", "x-field": "_chart_month", "y-field": ("user_count",),
                       "option": {
-            "series": {"bars": {"align": "center", "barWidth": 0.8, 'show': True}},
-            "xaxis": {"aggregate": "sum", "mode": "categories"},
-        },
-        },
+                          "series": {"bars": {"align": "center", "barWidth": 0.8, 'show': True}},
+                          "xaxis": {"aggregate": "sum", "mode": "categories"},
+                      },
+                      },
     }
 
     def _chart_month(self, obj):
         return obj.date.strftime("%B")
 
 
-# xadmin.sites.site.register(HostGroup, HostGroupAdmin)
-# xadmin.sites.site.register(MaintainLog, MaintainLogAdmin)
-# xadmin.sites.site.register(IDC, IDCAdmin)
+'''
+# xadmin.sites.site.register(Series, SeriesAdmin)
+# xadmin.sites.site.register(Sutra, SutraAdmin)
+# xadmin.sites.site.register(Translator, TranslatorAdmin)
 # xadmin.sites.site.register(AccessRecord, AccessRecordAdmin)
 '''

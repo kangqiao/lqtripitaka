@@ -19,7 +19,7 @@ from rest_framework import routers
 from core import views
 
 import xadmin
-xadmin.autodiscover()
+# xadmin.autodiscover()
 
 # version模块自动注册需要版本控制的 Model
 from xadmin.plugins import xversion

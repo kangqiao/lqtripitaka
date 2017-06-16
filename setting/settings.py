@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 PROJECT_ROOT = os.path.join(os.path.realpath(os.path.dirname(__file__)), os.pardir)
 # PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -37,7 +37,7 @@ SECRET_KEY = '%fu%90nm*tx0b-z9(h0cz5wyh&)@&2g%m&ssqs^fk6y%3ypssz'
 DEBUG = True
 
 ADMINS = (
-    ('admin', 'kangqiao182@126.com'),
+    #('admin', 'kangqiao182@126.com'),
 )
 
 MANAGERS = ADMINS
@@ -71,8 +71,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
+    # Uncomment the next line for simple clickjacking protection:
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'setting.urls'
@@ -108,7 +108,7 @@ WSGI_APPLICATION = 'setting.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(PROJECT_ROOT, 'db.sqlite3'),                      # Or path to database file if using sqlite3.
+        'NAME': os.path.join(PROJECT_ROOT, 'data.db'),      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
