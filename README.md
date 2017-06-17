@@ -13,6 +13,7 @@ django-reversion==2.0.8
 djangorestframework==3.6.3
 future==0.16.0
 httplib2==0.9.2
+PyMySQL==0.7.11
 pytz==2017.2
 six==1.10.0
 xadmin==0.6.1
@@ -35,6 +36,12 @@ xadmin==0.6.1
 ~ rm -rf ~/.virtualenvs/lqtripitaka/lib/python3.5/site-packages/xadmin
 # 复制git仓中xadmin到virtualenvs环境中.
 ~ cp -R xadmin/xadmin ~/.virtualenvs/lqtripitaka/lib/python3.5/site-packages
+```
+#### Fix mysql bug
+# PyMySQL需要在项目设置包中__init__.py 中增加:
+```
+import pymysql
+pymysql.install_as_MySQLdb()
 ```
 
 ### Create admin
@@ -59,6 +66,6 @@ password: `1q2w3e4r
 ~ python manage.py runserver
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser, the admin user password is admin
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser, the admin user password is `1q2w3e4r
 
 ![xadmin 首页](https://github.com/kangqiao/lqtripitaka/blob/master/xadmin_main.png)

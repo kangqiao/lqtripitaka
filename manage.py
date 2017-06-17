@@ -7,6 +7,9 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.join(PROJECT_ROOT, os.pardir))
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "setting.settings")
+    #os.environ.setdefault("DJANGO_SETTINGS_MODULE", "setting.prod")
+    #os.environ.setdefault("DJANGO_SETTINGS_MODULE", "setting.dev")
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError:

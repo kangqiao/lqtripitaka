@@ -44,6 +44,7 @@ class Series(models.Model):
     class Meta:
         verbose_name = u"藏经版本"
         verbose_name_plural = u"藏经版本管理"
+        ordering = ('code', 'type')
 
 
 class Volume(models.Model):
@@ -62,6 +63,7 @@ class Volume(models.Model):
         verbose_name = u"册"
         verbose_name_plural = u"册管理"
         ordering = ['name']
+        ordering = ('series', 'code')
 
 
 class Sutra(models.Model):
@@ -99,7 +101,7 @@ class Sutra(models.Model):
     class Meta:
         verbose_name = u"经"
         verbose_name_plural = u"经管理"
-        ordering = ['name']
+        ordering = ('series', 'code')
 
 
 class Roll(models.Model):
@@ -120,7 +122,7 @@ class Roll(models.Model):
     class Meta:
         verbose_name = u"卷"
         verbose_name_plural = u"卷管理"
-        ordering = ['name']
+        ordering = ('sutra', 'code')
 
 
 class Page(models.Model):
@@ -162,7 +164,7 @@ class Page(models.Model):
     class Meta:
         verbose_name = u"页"
         verbose_name_plural = u"页管理"
-        ordering = ['name']
+        ordering = ('sutra', 'code')
 
 
 class PageResource(models.Model):
