@@ -28,9 +28,14 @@ from xadmin.plugins import xversion
 xversion.register_models()
 
 router = routers.DefaultRouter()
+router.register(r'series', views.SeriesSet)
+router.register(r'volume', views.VolumeSet)
+router.register(r'sutra', views.SutraSet)
+router.register(r'roll', views.RollSet)
+router.register(r'page', views.PageSet)
+router.register(r'translators', views.TranslatorSet)
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'translators', views.TranslatorSet)
 
 urlpatterns = [
     url(r'^api/', include(router.urls)),

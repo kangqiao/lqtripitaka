@@ -50,7 +50,7 @@ class Volume(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='册名')
-    series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='版本')
+    series = models.ForeignKey(Series, null=True, blank=True, related_name='volumes', on_delete=models.SET_NULL, verbose_name='版本')
     start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
     end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
@@ -82,7 +82,7 @@ class Sutra(models.Model):
         default=SUTTA,
         verbose_name='类型'
     )
-    series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='版本')
+    series = models.ForeignKey(Series, null=True, blank=True, related_name='sutras', on_delete=models.SET_NULL, verbose_name='版本')
     clazz = models.CharField(max_length=64, null=True, blank=True, verbose_name="部别")
     translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
     dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="朝代")
@@ -107,7 +107,7 @@ class Roll(models.Model):
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='卷名')
     series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='版本')
-    sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
+    sutra = models.ForeignKey(Sutra, null=True, blank=True, related_name='rolls', on_delete=models.SET_NULL, verbose_name='经')
     page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
     start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
     end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
@@ -124,9 +124,31 @@ class Roll(models.Model):
 
 
 class Page(models.Model):
+    COVER = 'cover'
+    PROLOGUE = 'prologue'
+    PREFACE = 'Preface'
+    CATALOG = 'catalog'
+    PUBLISH = 'publish'
+    BLANK = 'blank'
+    CONTENT = 'content'
+    TYPE_CHOICES = (
+        (COVER, '封面'),
+        (PROLOGUE, '序言'),
+        (PREFACE, '前言'),
+        (CATALOG, '目录'),
+        (PUBLISH, '出版页'),
+        (BLANK, '空白页'),
+        (CONTENT, '内容'),
+    )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='页码')
+    type = models.CharField(
+        max_length=8,
+        choices=TYPE_CHOICES,
+        default=CONTENT,
+        verbose_name='类型'
+    )
     series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='部')
     volume = models.ForeignKey(Volume, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='册')
     sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
@@ -144,20 +166,20 @@ class Page(models.Model):
 
 
 class PageResource(models.Model):
-    TEXT = 'TX'
-    IMAGE = 'IM'
-    INSET = 'TN'
+    TEXT = 'text'
+    IMAGE = 'image'
+    INSET = 'inset'
     TYPE_CHOICES = (
         (TEXT, '文本'),
         (IMAGE, '图片'),
         (INSET, '插图'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    page = models.ForeignKey(Page, on_delete=models.CASCADE, verbose_name='页')
+    page = models.ForeignKey(Page, related_name='page_resources', on_delete=models.CASCADE, verbose_name='页')
     type = models.CharField(
-        max_length=2,
+        max_length=8,
         choices=TYPE_CHOICES,
-        default=TEXT,
+        default=IMAGE,
         verbose_name='类型'
     )
     resource = models.FileField(verbose_name='资源')

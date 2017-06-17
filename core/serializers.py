@@ -7,6 +7,62 @@ from .models import *
 from rest_framework import serializers
 
 
+class TranslatorSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Translator
+        fields = '__all__'
+
+
+class PageResourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PageResource
+        fields = ('type', 'resource')
+
+
+class PageSerializer(serializers.ModelSerializer):
+    page_resources = PageResourceSerializer(many=True)
+
+    class Meta:
+        model = Page
+        fields = '__all__'
+
+
+class RollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Roll
+        fields = '__all__'
+
+
+class SutraSerializer(serializers.ModelSerializer):
+    rolls = RollSerializer(many=True)
+
+    class Meta:
+        model = Sutra
+        fields = '__all__'
+
+
+class VolumeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Volume
+        fields = '__all__'
+
+
+class SeriesListSerializer(serializers.ListSerializer):
+    class Meta:
+        model = Series
+        fields = '__all__'
+
+
+class SeriesSerializer(serializers.HyperlinkedModelSerializer):
+    volumes = VolumeSerializer(many=True)
+    sutras = SutraSerializer(many=True)
+
+    class Meta:
+        model = Series
+        fields = '__all__'
+        #list_serializer_class = SeriesListSerializer
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
@@ -17,9 +73,3 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
         fields = ('url', 'name')
-
-
-class TranslatorSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Translator
-        fields = '__all__'

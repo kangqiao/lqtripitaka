@@ -92,14 +92,14 @@ class PageAdmin(object):
 
 @xadmin.sites.register(Translator)
 class TranslatorAdmin(object):
-    list_display = ("name", "type", "nameA", "nameB")
+    list_display = ("name", "type", "remark")
     list_display_links = ("name",)
     wizard_form_list = [
-        ("First's Form", ("name", "type", "nameA", "nameB")),
+        ("First's Form", ("name", "type")),
         ("Second Form", ("remark",))
     ]
 
-    search_fields = ["name", "type", "nameA", "nameB"]
+    search_fields = ["name", "type", "remark"]
     relfield_style = "fk-select"
     reversion_enable = True
     actions = [BatchChangeAction, ]
