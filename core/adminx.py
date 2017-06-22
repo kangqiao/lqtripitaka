@@ -80,14 +80,42 @@ class PageResourceInline(object):
 
 @xadmin.sites.register(Page)
 class PageAdmin(object):
-    list_display = ("code", "name", "series", "volume", "sutra", "roll", "pre_page", "next_page")
+
+    def open_page_resource(self, instance):
+        count = instance.page_resources.count()
+        return count
+    open_page_resource.short_description = "Resource"
+    open_page_resource.allow_tags = True
+    open_page_resource.is_column = True
+
+    list_display = ("code", "name", "type", "series", "volume", "sutra", "roll", "pre_page", "next_page", "open_page_resource")
     list_display_links = ("code", "name",)
-    search_fields = ["code", "name"]
+
     relfield_style = "fk-select"
+    style_fields = {"system": "radio-inline"}
     reversion_enable = True
     actions = [BatchChangeAction, ]
-
     inlines = [PageResourceInline]
+
+    search_fields = ["code", "name"]
+    list_filter = [
+        "series", "volume", "sutra", "roll", (
+            "code",
+            xadmin.filters.MultiSelectFieldListFilter,
+        ),
+    ]
+
+    # form_layout = (
+    #     Col("col1",
+    #         Fieldset("页", "code", "name", "type", "series", "volume", "sutra", "roll", "pre_page", "next_page"),
+    #         span=6, horizontal=True
+    #         ),
+    #     Col("col2",
+    #         Inline(PageResourceInline),
+    #         span=4, horizontal=True
+    #         )
+    # )
+
 
 
 @xadmin.sites.register(Translator)
@@ -104,6 +132,39 @@ class TranslatorAdmin(object):
     reversion_enable = True
     actions = [BatchChangeAction, ]
 
+
+@xadmin.sites.register(NormName)
+class NormNameAdmin(object):
+    def get_map_list(self, instance):
+        list = instance.map_list.all()
+        ret = ""
+        for map in list:
+            ret += """<a href="/xadmin/core/normnamemap/%s/update/" >%s</a> | """ % (map.id, map.name)
+        return ret
+    get_map_list.short_description = "相关对照列表"
+    get_map_list.allow_tags = True
+    get_map_list.is_column = True
+
+    list_display = ("type", "name", "get_map_list")
+    list_display_links = ("name",)
+    search_fields = ["type", "name"]
+    relfield_style = "fk-select"
+    reversion_enable = True
+    list_filter = [
+        "type", "name",
+    ]
+
+
+@xadmin.sites.register(NormNameMap)
+class NormNameMapAdmin(object):
+    list_display = ("name", "type", "norm_name", "remark")
+    list_display_links = ("name", "norm_name")
+    search_fields = ["name", "type", "norm_name"]
+    relfield_style = "fk-select"
+    reversion_enable = True
+    list_filter = [
+        "type", "norm_name", "name",
+    ]
 
 @xadmin.sites.register(AccessRecord)
 class AccessRecordAdmin(object):
