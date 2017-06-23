@@ -50,7 +50,7 @@ pymysql.install_as_MySQLdb()
 ~ python manage.py createsuperuser
 username: admin
 e-mail: admin@126.com
-password: `1q2w3e4r
+password: admin 
 ```
 
 ### Initialization
@@ -61,11 +61,11 @@ password: `1q2w3e4r
 ~ python manage.py migrate
 # 加载初始数据
 ~ python manage.py loaddata data.json
-# [Option]Collect media:
+# Collect media:
 ~ python manage.py collectstatic
 ~ python manage.py runserver
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser, the admin user password is `1q2w3e4r
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser, the admin user password is admin 
 
 ![xadmin 首页](https://github.com/kangqiao/lqtripitaka/blob/master/xadmin_main.png)
