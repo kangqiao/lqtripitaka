@@ -2,8 +2,10 @@
 # 大藏经
 
 欢迎加入龙泉大藏经平台开发.
+
 QQ: 279197764
-Demo: [后台管理入口](http://67.209.183.50/xadmin/)  [REST API 接口列表](http://67.209.183.50/api/)
+
+Demo: [后台管理入口](http://67.209.183.50/xadmin/)   [REST API 接口列表](http://67.209.183.50/api/)
 
 ### Install Requires
 ```
@@ -67,7 +69,7 @@ password: admin
 ~ python manage.py runserver
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api)in your browser, the admin user password is admin
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api) in your browser, the admin user password is admin
 
 ![xadmin 首页](https://github.com/kangqiao/lqtripitaka/blob/master/conf/lqtripitaka_xmain.png)
 
