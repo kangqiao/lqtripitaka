@@ -5,7 +5,19 @@ from .models import *
 from xadmin.layout import Main, TabHolder, Tab, Fieldset, Row, Col, AppendedText, Side
 from xadmin.plugins.inline import Inline
 from xadmin.plugins.batch import BatchChangeAction
+from xadmin.filters import MultiSelectFieldListFilter
+from django.db.models import Q
 
+class CommonCaclProp(object):
+    def real_page_count(self, instance):
+        field = Page._meta.get_field(instance._meta_model_name)
+        count = Page.objects.filter({field: instance.id}).count()
+        if count > 0:
+            return """<a href='/xadmin/core/page/?_p_%s__id__exact=%s'>%s</a>""" % (instance._meta_model_name, instance.id, count)
+        return count
+    real_page_count.short_description = "实页数"
+    real_page_count.allow_tags = True
+    real_page_count.is_column = True
 
 @xadmin.sites.register(views.website.IndexView)
 class MainDashboard(object):
@@ -40,7 +52,34 @@ class GlobalSetting(object):
 
 @xadmin.sites.register(Series)
 class SeriesAdmin(object):
-    list_display = ("code", "name", "type", "dynasty", "volume_count", "sutra_count", "publish_name", "publish_date")
+    def real_volume_count(self, instance):
+        count = instance.volumes.count()
+        if count > 0:
+            return """<a href='/xadmin/core/volume/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_volume_count.short_description = "实册数"
+    real_volume_count.allow_tags = True
+    real_volume_count.is_column = True
+
+    def real_sutra_count(self, instance):
+        count = instance.sutras.count()
+        if count > 0:
+            return """<a href='/xadmin/core/sutra/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_sutra_count.short_description = "实经数"
+    real_sutra_count.allow_tags = True
+    real_sutra_count.is_column = True
+
+    def real_page_count(self, instance):
+        count = Page.objects.filter(series=instance.id).count()
+        if count > 0:
+            return """<a href='/xadmin/core/page/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_page_count.short_description = "实页数"
+    real_page_count.allow_tags = True
+    real_page_count.is_column = True
+
+    list_display = ("code", "name", "type", "dynasty", "volume_count", "real_volume_count", "sutra_count", "real_sutra_count", "real_page_count", "publish_name", "publish_date")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name", 'dynasty', 'type', 'publish_name']
     relfield_style = "fk-select"
@@ -49,27 +88,65 @@ class SeriesAdmin(object):
 
 @xadmin.sites.register(Volume)
 class VolumeAdmin(object):
-    list_display = ("code", "name", "series", "remark")
+    def real_page_count(self, instance):
+        count = Page.objects.filter(volume=instance.id).count()
+        if count > 0:
+            return """<a href='/xadmin/core/page/?_p_volume__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_page_count.short_description = "实页数"
+    real_page_count.allow_tags = True
+    real_page_count.is_column = True
+
+    list_display = ("code", "name", "series", "real_page_count", "remark")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name"]
+    list_filter = ["series", "name", ("code", MultiSelectFieldListFilter),]
     relfield_style = "fk-select"
     reversion_enable = True
 
 
 @xadmin.sites.register(Sutra)
 class SutraAdmin(object):
-    list_display = ("code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "roll_count", "qianziwen")
+    def real_roll_count(self, instance):
+        count = instance.rolls.count()
+        if count > 0:
+            return """<a href='/xadmin/core/roll/?_p_sutra__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_roll_count.short_description = "实卷数"
+    real_roll_count.allow_tags = True
+    real_roll_count.is_column = True
+
+    def real_page_count(self, instance):
+        count = Page.objects.filter(sutra=instance.id).count()
+        if count > 0:
+            return """<a href='/xadmin/core/page/?_p_sutra__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_page_count.short_description = "实页数"
+    real_page_count.allow_tags = True
+    real_page_count.is_column = True
+    list_display = ("code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "roll_count", "real_roll_count", "real_page_count", "qianziwen")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "qianziwen"]
+    list_filter = ["series", "name", ("code", MultiSelectFieldListFilter),]
     relfield_style = "fk-select"
     reversion_enable = True
 
 
 @xadmin.sites.register(Roll)
 class RollAdmin(object):
-    list_display = ("code", "name", "series", "sutra", "page_count", "qianziwen")
+    def real_page_count(self, instance):
+        count = Page.objects.filter(roll=instance.id).count()
+        if count > 0:
+            return """<a href='/xadmin/core/page/?_p_roll__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_page_count.short_description = "实页数"
+    real_page_count.allow_tags = True
+    real_page_count.is_column = True
+
+    list_display = ("code", "name", "series", "sutra", "page_count", "real_page_count", "qianziwen")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name", "qianziwen"]
+    list_filter = ["series", "sutra", "code", ]
     relfield_style = "fk-select"
     reversion_enable = True
 
@@ -99,10 +176,7 @@ class PageAdmin(object):
 
     search_fields = ["code", "name"]
     list_filter = [
-        "series", "volume", "sutra", "roll", (
-            "code",
-            xadmin.filters.MultiSelectFieldListFilter,
-        ),
+        "series", "volume", "sutra", "roll", ("code",  MultiSelectFieldListFilter),
     ]
 
     # form_layout = (
