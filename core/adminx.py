@@ -15,7 +15,7 @@ class CommonCaclProp(object):
         if count > 0:
             return """<a href='/xadmin/core/page/?_p_%s__id__exact=%s'>%s</a>""" % (instance._meta_model_name, instance.id, count)
         return count
-    real_page_count.short_description = "实页数"
+    real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
@@ -57,7 +57,7 @@ class SeriesAdmin(object):
         if count > 0:
             return """<a href='/xadmin/core/volume/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
         return count
-    real_volume_count.short_description = "实册数"
+    real_volume_count.short_description = "实存册数"
     real_volume_count.allow_tags = True
     real_volume_count.is_column = True
 
@@ -66,7 +66,7 @@ class SeriesAdmin(object):
         if count > 0:
             return """<a href='/xadmin/core/sutra/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
         return count
-    real_sutra_count.short_description = "实经数"
+    real_sutra_count.short_description = "实存经数"
     real_sutra_count.allow_tags = True
     real_sutra_count.is_column = True
 
@@ -75,11 +75,11 @@ class SeriesAdmin(object):
         if count > 0:
             return """<a href='/xadmin/core/page/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
         return count
-    real_page_count.short_description = "实页数"
+    real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
-    list_display = ("code", "name", "type", "dynasty", "volume_count", "real_volume_count", "sutra_count", "real_sutra_count", "real_page_count", "publish_name", "publish_date")
+    list_display = ("code", "name", "type", "dynasty", "historic_site", "library_site", "book_reservation", "volume_count", "real_volume_count", "sutra_count", "real_sutra_count", "real_page_count", "publish_name", "publish_date")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name", 'dynasty', 'type', 'publish_name']
     relfield_style = "fk-select"
@@ -93,7 +93,7 @@ class VolumeAdmin(object):
         if count > 0:
             return """<a href='/xadmin/core/page/?_p_volume__id__exact=%s'>%s</a>""" % (instance.id, count)
         return count
-    real_page_count.short_description = "实页数"
+    real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
@@ -112,7 +112,7 @@ class SutraAdmin(object):
         if count > 0:
             return """<a href='/xadmin/core/roll/?_p_sutra__id__exact=%s'>%s</a>""" % (instance.id, count)
         return count
-    real_roll_count.short_description = "实卷数"
+    real_roll_count.short_description = "实存卷数"
     real_roll_count.allow_tags = True
     real_roll_count.is_column = True
 
@@ -121,7 +121,7 @@ class SutraAdmin(object):
         if count > 0:
             return """<a href='/xadmin/core/page/?_p_sutra__id__exact=%s'>%s</a>""" % (instance.id, count)
         return count
-    real_page_count.short_description = "实页数"
+    real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
     real_page_count.is_column = True
     list_display = ("code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "roll_count", "real_roll_count", "real_page_count", "qianziwen")
@@ -139,7 +139,7 @@ class RollAdmin(object):
         if count > 0:
             return """<a href='/xadmin/core/page/?_p_roll__id__exact=%s'>%s</a>""" % (instance.id, count)
         return count
-    real_page_count.short_description = "实页数"
+    real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
