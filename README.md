@@ -5,7 +5,10 @@
 
 QQ: 279197764
 
-Demo: [后台管理入口](http://67.209.183.50/xadmin/)   [REST API 接口列表](http://67.209.183.50/api/)
+Demo:
+ 
+ [后台管理入口](http://dev.lqtripitaka.longquan.org/xadmin/)  
+ [REST API 接口列表](http://dev.lqtripitaka.longquan.org/api/)
 
 ### Install Requires
 ```
@@ -60,7 +63,7 @@ password: admin
 ```
 ~ cd lqtripitaka
 ~ workon lqtripitaka #激活已创建的lqtripitaka环境
-~ python manage.py makemigrate
+~ python manage.py makemigrations
 ~ python manage.py migrate
 # 加载初始数据
 ~ python manage.py loaddata data.json
@@ -74,3 +77,29 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and [http://127.0.0.1:8000/a
 ![xadmin 首页](https://github.com/kangqiao/lqtripitaka/blob/master/conf/lqtripitaka_xmain.png)
 
 ![API 首页](https://github.com/kangqiao/lqtripitaka/blob/master/conf/lqtripitaka_api.png)
+
+```
+////////////////////////////////////////////////////////////////////
+//                          _ooOoo_                               //
+//                         o8888888o                              //
+//                         88" . "88                              //
+//                         (| ^_^ |)                              //
+//                         O\  =  /O                              //
+//                      ____/`---'\____                           //
+//                    .'  \\|     |//  `.                         //
+//                   /  \\|||  :  |||//  \                        //
+//                  /  _||||| -:- |||||-  \                       //
+//                  |   | \\\  -  /// |   |                       //
+//                  | \_|  ''\---/''  |   |                       //
+//                  \  .-\__  `-`  ___/-. /                       //
+//                ___`. .'  /--.--\  `. . ___                     //
+//              ."" '<  `.___\_<|>_/___.'  >'"".                  //
+//            | | :  `- \`.;`\ _ /`;.`/ - ` : | |                 //
+//            \  \ `-.   \_ __\ /__ _/   .-` /  /                 //
+//      ========`-.____`-.___\_____/___.-`____.-'========         //
+//                           `=---='                              //
+//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^        //
+//                         南无阿弥陀佛                            //
+////////////////////////////////////////////////////////////////////
+
+```
