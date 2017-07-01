@@ -10,20 +10,18 @@ Demo:
  [后台管理入口](http://dev.lqtripitaka.longquan.org/xadmin/)  
  [REST API 接口列表](http://dev.lqtripitaka.longquan.org/api/)
 
-### Install Requires
-```
-Django==1.11.2
-django-crispy-forms==1.6.1
-django-formtools==2.0
-django-reversion==2.0.8
-djangorestframework==3.6.3
-future==0.16.0
-httplib2==0.9.2
-PyMySQL==0.7.11
-pytz==2017.2
-six==1.10.0
-xadmin==0.6.1
-```
+
+[生产环境部署文档](https://github.com/kangqiao/lqtripitaka/Deployment.md)
+
+
+## 开发环境部署
+
+### 环境
+- Python 3.6.1
+- Django 1.11.2
+- xadmin 0.6.1
+
+[Dependent packages](https://github.com/kangqiao/lqtripitaka/requirements.txt)
 
 ### Install
 通过virtualenv安装依赖包
@@ -63,6 +61,7 @@ password: admin
 ```
 ~ cd lqtripitaka
 ~ workon lqtripitaka #激活已创建的lqtripitaka环境
+~ export DJANGO_SETTINGS_MODULE=setting.settingsdev 
 ~ python manage.py makemigrations
 ~ python manage.py migrate
 # 加载初始数据
