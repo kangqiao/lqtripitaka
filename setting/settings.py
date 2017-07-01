@@ -43,7 +43,7 @@ PROJECT_ROOT = os.path.join(os.path.realpath(os.path.dirname(__file__)), os.pard
 SECRET_KEY = '%fu%90nm*tx0b-z9(h0cz5wyh&)@&2g%m&ssqs^fk6y%3ypssz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ADMINS = (
     #('admin', 'kangqiao182@126.com'),
