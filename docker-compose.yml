@@ -1,4 +1,4 @@
-lq_mysql:
+mysql-tripitaka:
   restart: always
   image: mysql
   volumes:
@@ -10,7 +10,7 @@ lq_mysql:
     - MYSQL_DATABASE=lqtripitaka
     - MYSQL_ROOT_PASSWORD=root
 
-lq_nginx:
+nginx-tripitaka:
   restart: always
   image: nginx
   ports:
@@ -20,17 +20,17 @@ lq_nginx:
   volumes_from:
     - lq_tripitaka
   links:
-    - lq_tripitaka:web
+    - web_tripitaka:web_tripitaka
 
-lq_tripitaka:
+web_tripitaka:
   restart: always
   build: .
   ports:
     - "8000:8000"
   volumes:
-    - .:/setting
+    - .:/lqtripitaka
   links:
-    - lq_mysql:mysql
+    - mysql-tripitaka:mysql_tripitaka
   command: uwsgi -s :8000 -w setting.wsgi -p 3
 
 

@@ -26,6 +26,13 @@ Mac系统的安装文件目录：http://mirrors.aliyun.com/docker-toolbox/mac/do
 
 
 ### 2.Dcoker-compose安装
+
+|docker-compose |docker-engine |CentOS    |
+|:-------------:|:------------:|:--------:|
+|1.7.0          |1.9.1-        |7.0       |
+|1.6.2          |1.9.1-        |7.0       |
+|1.5.2          |1.7.1-        |6.7       |
+
 ```bash
 yum install -y python-pip
 pip install -U docker-compose
@@ -50,22 +57,51 @@ docker-compose up -d
 
 ### 5.同步数据库
 ```bash
-docker-compose exec lq_tripitaka /usr/local/bin/python manage.py makemigrations
-docker-compose exec lq_tripitaka /usr/local/bin/python manage.py migrate
+docker-compose run lq_tripitaka /usr/local/bin/python manage.py makemigrations
+docker-compose run lq_tripitaka /usr/local/bin/python manage.py migrate
 ```
 
 ### 6.收集样式
 ```bash
-docker-compose exec lq_tripitaka /usr/local/bin/python manage.py collectstatic
+docker-compose run lq_tripitaka /usr/local/bin/python manage.py collectstatic
 ```
 
-如果浏览器打开 `127.0.0.1` 或者打开你自己配置的域名 or IP，就能预览项目了。
+### 7. 导入初始数据
+```
+docker-compose run lq_tripitaka  python manage.py loaddata data.json
+```
 
-### 7.最后
+打开浏览器 `127.0.0.1` 或者打开你自己配置的域名 or IP，就能预览项目了。
+
+### 9.最后
 - 你可以手动导入你自己的数据到数据库
 - 你也可以用 Docker 作为本地的开发环境，这个时候应使用应修改 `manage.py`, 使用 `settingsdev.py` 而不是 `settings.py`
 - 登录 admin 后台时前，别忘了先创建超级用户
 ```bash
-docker-compose exec kele_imooc /usr/local/bin/python manage.py createsuperuser
+docker-compose run lq_tripitaka python manage.py createsuperuser
+Username (leave blank to use 'root'): admin
+Email address: admin@126.com
+Password: admin
+Password (again): admin
+Superuser created successfully.
 ```
+### 写在最后
 
+#### 遇到的问题
+###### centos 6 中安装docker
+```
+yum install https://get.docker.com/rpm/1.7.1/centos-6/RPMS/x86_64/docker-engine-1.7.1-1.el6.x86_64.rpm
+# centos 6 中 docker-compose 需要安装1.5.2版本
+pip3 install docker-compose==1.5.2
+```
+###### [docker参考文档](https://yeasy.gitbooks.io/docker_practice/content/introduction/)
+
+#### docker常用命令
+```
+# 停止所有的容器运行
+docker stop $(docker ps -q)
+# 删除所有的容器
+docker rm $(docker ps -a -q)
+# 删除所有的镜像
+docker rmi $(docker images -q)
+```

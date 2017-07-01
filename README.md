@@ -31,18 +31,15 @@ Demo:
 ~ mkvirtualenv --no-site-packages --python=python3.5 lqtripitaka
 ~ pip install -r requirements.txt
 ```
-##### Fix xadmin bug
-由于pip中xadmin与python3存在兼容问题. 需要使用[github xadmin](https://github.com/sshwsfc/xadmin)中最新版本.
+##### Xadmin Install
+由于pip中xadmin与python3存在兼容问题.
+使用pip从[github xadmin](https://github.com/sshwsfc/xadmin)安装最新版本.
 ```
-~ cd ..
-~ git clone git@github.com:sshwsfc/xadmin.git
-# 删除已安装的xadmin
-~ rm -rf ~/.virtualenvs/lqtripitaka/lib/python3.5/site-packages/xadmin
-# 复制git仓中xadmin到virtualenvs环境中.
-~ cp -R xadmin/xadmin ~/.virtualenvs/lqtripitaka/lib/python3.5/site-packages
+~ pip uninstall xadmin
+~ pip install git+https://github.com/sshwsfc/xadmin.git
 ```
 ##### Fix mysql bug
-PyMySQL需要在项目设置包中__init__.py 中增加:
+PyMySQL需要在项目设置包中settings.py 中增加:
 ```
 import pymysql
 pymysql.install_as_MySQLdb()
