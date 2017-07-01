@@ -15,6 +15,11 @@ import os
 import os.path
 from django.utils import six
 
+# mysql 数据库
+import pymysql
+
+pymysql.install_as_MySQLdb()
+
 if six.PY2 and sys.getdefaultencoding()=='ascii':
     import imp
     imp.reload(sys)

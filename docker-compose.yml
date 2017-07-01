@@ -18,7 +18,7 @@ nginx-tripitaka:
   volumes:
     - ./conf/nginx/tripitaka_nginx.conf:/etc/nginx/conf.d/tripitaka_nginx.conf
   volumes_from:
-    - lq_tripitaka
+    - web_tripitaka
   links:
     - web_tripitaka:web_tripitaka
 

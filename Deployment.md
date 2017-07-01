@@ -46,7 +46,7 @@ docker-compose -v
 
 
 ### 3.修改配置文件
-1. 修改 `conf/nginx/lq_nginx.conf` 中的 IP 和域名，默认都是 `127.0.0.1`，IP 和域名请改成你自己服务器的 IP 和 自己的域名。
+1. 修改 `conf/nginx/tripitaka_nginx.conf` 中的 IP 和域名，默认都是 `127.0.0.1`，IP 和域名请改成你自己服务器的 IP 和 自己的域名。
 2. `settings.py` 中 `DATABASES` 配置要和 `docker-compose.yml`里的数据库配置保持一致（可以不做修改使用默认值），其中 HOST 为 `mysql`。
 
 
@@ -57,18 +57,18 @@ docker-compose up -d
 
 ### 5.同步数据库
 ```bash
-docker-compose run lq_tripitaka /usr/local/bin/python manage.py makemigrations
-docker-compose run lq_tripitaka /usr/local/bin/python manage.py migrate
+docker-compose run web_tripitaka /usr/local/bin/python manage.py makemigrations
+docker-compose run web_tripitaka /usr/local/bin/python manage.py migrate
 ```
 
 ### 6.收集样式
 ```bash
-docker-compose run lq_tripitaka /usr/local/bin/python manage.py collectstatic
+docker-compose run web_tripitaka /usr/local/bin/python manage.py collectstatic
 ```
 
 ### 7. 导入初始数据
 ```
-docker-compose run lq_tripitaka  python manage.py loaddata data.json
+docker-compose run web_tripitaka  python manage.py loaddata data.json
 ```
 
 打开浏览器 `127.0.0.1` 或者打开你自己配置的域名 or IP，就能预览项目了。
