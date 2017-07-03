@@ -1,5 +1,7 @@
 
-# 大藏经
+# 龙泉大藏经
+
+中国佛教典籍资料，不仅是世界佛教的宝藏，也是人类文明的瑰宝。考虑到中国佛教在新世纪里作为全球佛教发展中心的地位与使命，对中国佛教典籍进行系统、规范的现代整理，就成为当务之急。为此，师父在开示中指出：“汉文大藏经的校勘、整理、研究、翻译，不仅是建立汉传佛教完整修学体系的根基，而且是创新当代佛教思想理论、复兴传播中华文化乃至融合东西方文化的重要起点。
 
 欢迎加入龙泉大藏经平台开发.
 
@@ -7,11 +9,11 @@ QQ: 279197764
 
 Demo:
  
- [后台管理入口](http://dev.lqtripitaka.longquan.org/xadmin/)  
- [REST API 接口列表](http://dev.lqtripitaka.longquan.org/api/)
+ [后台管理入口](http://dev-version.lqdzj.cn/xadmin/)  
+ [REST API 接口列表](http://dev-version.lqdzj.cn/api/)
 
 
-[生产环境部署文档](https://github.com/kangqiao/lqtripitaka/Deployment.md)
+[生产环境部署文档](./Deployment.md)
 
 
 ## 开发环境部署
@@ -21,7 +23,7 @@ Demo:
 - Django 1.11.2
 - xadmin 0.6.1
 
-[Dependent packages](https://github.com/kangqiao/lqtripitaka/requirements.txt)
+[Dependent packages](./requirements.txt)
 
 ### Install
 通过virtualenv安装依赖包
@@ -70,9 +72,9 @@ password: admin
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api) in your browser, the admin user password is admin
 
-![xadmin 首页](https://github.com/kangqiao/lqtripitaka/blob/master/conf/lqtripitaka_xmain.png)
+![xadmin 首页](./conf/lqtripitaka_xmain.png)
 
-![API 首页](https://github.com/kangqiao/lqtripitaka/blob/master/conf/lqtripitaka_api.png)
+![API 首页](./conf/lqtripitaka_api.png)
 
 ```
 ////////////////////////////////////////////////////////////////////
