@@ -29,8 +29,10 @@ class Series(models.Model):
     )
     volume_count = models.IntegerField(null=True, blank=True, verbose_name="册数")
     sutra_count = models.IntegerField(null=True, blank=True, verbose_name="经数")
-    dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="朝代")
-    historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="刻经地点")
+    dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="刊刻时间")
+    historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="刊刻地点")
+    library_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="馆藏地")
+    book_reservation = models.CharField(max_length=64, null=True, blank=True, verbose_name="典藏号")
     publish_name = models.CharField(max_length=64, null=True, blank=True, verbose_name="出版社")
     publish_date = models.DateField(null=True, blank=True, verbose_name="出版时间")
     publish_edition = models.SmallIntegerField(null=True, blank=True, verbose_name="版次")
@@ -90,6 +92,8 @@ class Sutra(models.Model):
     dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="朝代")
     historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="译经地点")
     roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
+    start_volume = models.UUIDField(null=True, blank=True, verbose_name="起始册")
+    end_volume = models.UUIDField(null=True, blank=True, verbose_name="终止册")
     start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
     end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
     qianziwen = models.CharField(max_length=8, null=True, blank=True, verbose_name='千字文')
@@ -184,6 +188,20 @@ class PageResource(models.Model):
         default=IMAGE,
         verbose_name='类型'
     )
+    CBEAT = 'cbeat'
+    HANDWORK = 'hand'
+    NETWORK = "net"
+    SOURCE_CHOICES = (
+        (CBEAT, 'cbeta采集'),
+        (HANDWORK, '手工录入'),
+        (NETWORK, '网络采集'),
+    )
+    source = models.CharField(
+        max_length=8,
+        choices=SOURCE_CHOICES,
+        default=HANDWORK,
+        verbose_name='来源'
+    )
     resource = models.FileField(verbose_name='资源')
 
     def __str__(self):
@@ -221,6 +239,57 @@ class Translator(models.Model):
     class Meta:
         verbose_name = u"作译者"
         verbose_name_plural = u"作译者管理"
+
+
+SERIES = 'series'
+SUTRA = 'sutra'
+DYNASTY = 'dynasty'
+HISTORIC_SITE = "site"
+TRANSLATOR = "trans"
+NORM_TYPE_CHOICES = (
+    (SERIES, '标准版本名'),
+    (SUTRA, '标准经名'),
+    (DYNASTY, '标准朝代'),
+    (HISTORIC_SITE, '标准地名'),
+    (TRANSLATOR, '标准作译者'),
+)
+
+class NormName(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=64, verbose_name='标准名')
+    type = models.CharField(
+        max_length=8,
+        choices=NORM_TYPE_CHOICES,
+        default=SUTRA,
+        verbose_name='标准类型'
+    )
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = u"标准名"
+        verbose_name_plural = u"标准名管理"
+
+class NormNameMap(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    type = models.CharField(
+        max_length=8,
+        choices=NORM_TYPE_CHOICES,
+        default=SUTRA,
+        verbose_name='标准类型'
+    )
+    name = models.CharField(max_length=64, verbose_name='名字')
+    norm_name = models.ForeignKey(NormName, related_name='map_list', on_delete=models.CASCADE, verbose_name='隶属标准名')
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = u"标准名关联"
+        verbose_name_plural = u"名称对照管理"
 
 
 class AccessRecord(models.Model):

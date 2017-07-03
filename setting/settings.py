@@ -15,6 +15,11 @@ import os
 import os.path
 from django.utils import six
 
+# mysql 数据库
+import pymysql
+
+pymysql.install_as_MySQLdb()
+
 if six.PY2 and sys.getdefaultencoding()=='ascii':
     import imp
     imp.reload(sys)
@@ -25,7 +30,11 @@ from django.utils.translation import ugettext_lazy as _
 PROJECT_ROOT = os.path.join(os.path.realpath(os.path.dirname(__file__)), os.pardir)
 # PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 设置 apps, extra_apps 目录
+#sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+#sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -34,7 +43,7 @@ PROJECT_ROOT = os.path.join(os.path.realpath(os.path.dirname(__file__)), os.pard
 SECRET_KEY = '%fu%90nm*tx0b-z9(h0cz5wyh&)@&2g%m&ssqs^fk6y%3ypssz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ADMINS = (
     #('admin', 'kangqiao182@126.com'),
@@ -81,7 +90,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(PROJECT_ROOT,"templates"),
+            os.path.join(PROJECT_ROOT, "templates"),
             ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -106,42 +115,42 @@ WSGI_APPLICATION = 'setting.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(PROJECT_ROOT, 'data.db'),      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-
     # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'lqtripitaka',
-    #     'USER': 'root',
-    #     'PASSWORD': 'root',
-    #     'HOST': 'localhost',
-    #     'PORT': '3306',
+    #     'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+    #     'NAME': os.path.join(PROJECT_ROOT, 'data.db'),      # Or path to database file if using sqlite3.
+    #     'USER': '',                      # Not used with sqlite3.
+    #     'PASSWORD': '',                  # Not used with sqlite3.
+    #     'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+    #     'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     # }
+
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'lqtripitaka',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'mysql_tripitaka',
+        'PORT': '3306',
+    }
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+# AUTH_PASSWORD_VALIDATORS = [
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+#     },
+# ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
@@ -187,8 +196,11 @@ LOGGING = {
     }
 }
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.11/topics/i18n/
+# Local time zone for this installation. Choices can be found here:
+# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
+# although not all choices may be available on all operating systems.
+# In a Windows environment this must be set to your system time zone.
+TIME_ZONE = 'Asia/Shanghai'  # 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -199,34 +211,45 @@ LANGUAGES = (
     ('zh-hans', _('Chinese')),
 )
 
-TIME_ZONE = 'Asia/Shanghai'  # 'UTC'
+SITE_ID = 1
 
+# Internationalization
+# https://docs.djangoproject.com/en/1.11/topics/i18n/
+
+# If you set this to False, Django will make some optimizations so as not
+# to load the internationalization machinery.
 USE_I18N = True
 
+# If you set this to False, Django will not format dates, numbers and
+# calendars according to the current locale.
 USE_L10N = True
 
+# If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
-
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = 'media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = 'static/'
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+# Example: "/home/media/media.lawrence.com/media/"
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
+
+# Absolute path to the directory static files should be collected to.
+# Don't put anything in this directory yourself; store your static files
+# in apps' "static/" subdirectories and in STATICFILES_DIRS.
+# Example: "/home/media/media.lawrence.com/static/"
+# 当运行 python manage.py collectstatic 的时候
+# STATIC_ROOT 文件夹 是用来将所有 STATICFILES_DIRS 中所有文件夹中的文件，以及各 app 中 static 中的文件都复制过来
+# 把这些文件放到一起是为了用 apache/nginx 等部署的时候更方便
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
 # Additional locations of static files
 STATICFILES_DIRS = (

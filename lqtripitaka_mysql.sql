@@ -11,7 +11,7 @@
  Target Server Version : 50717
  File Encoding         : utf-8
 
- Date: 06/18/2017 00:25:53 AM
+ Date: 06/23/2017 00:21:24 AM
 */
 
 SET NAMES utf8mb4;
@@ -55,7 +55,7 @@ CREATE TABLE `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 --  Table structure for `auth_user`
@@ -120,6 +120,33 @@ CREATE TABLE `core_accessrecord` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
+--  Table structure for `core_normname`
+-- ----------------------------
+DROP TABLE IF EXISTS `core_normname`;
+CREATE TABLE `core_normname` (
+  `id` char(32) COLLATE utf8_bin NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL,
+  `type` varchar(8) COLLATE utf8_bin NOT NULL,
+  `remark` longtext COLLATE utf8_bin,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+--  Table structure for `core_normnamemap`
+-- ----------------------------
+DROP TABLE IF EXISTS `core_normnamemap`;
+CREATE TABLE `core_normnamemap` (
+  `id` char(32) COLLATE utf8_bin NOT NULL,
+  `type` varchar(8) COLLATE utf8_bin NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL,
+  `remark` longtext COLLATE utf8_bin,
+  `norm_name_id` char(32) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `core_normnamemap_norm_name_id_f568746b_fk_core_normname_id` (`norm_name_id`),
+  CONSTRAINT `core_normnamemap_norm_name_id_f568746b_fk_core_normname_id` FOREIGN KEY (`norm_name_id`) REFERENCES `core_normname` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
 --  Table structure for `core_page`
 -- ----------------------------
 DROP TABLE IF EXISTS `core_page`;
@@ -155,6 +182,7 @@ CREATE TABLE `core_pageresource` (
   `type` varchar(8) COLLATE utf8_bin NOT NULL,
   `resource` varchar(100) COLLATE utf8_bin NOT NULL,
   `page_id` char(32) COLLATE utf8_bin NOT NULL,
+  `source` varchar(8) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
   KEY `core_pageresource_page_id_b4179094_fk_core_page_id` (`page_id`),
   CONSTRAINT `core_pageresource_page_id_b4179094_fk_core_page_id` FOREIGN KEY (`page_id`) REFERENCES `core_page` (`id`)
@@ -293,7 +321,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 --  Table structure for `django_migrations`
@@ -305,7 +333,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 --  Table structure for `django_session`
@@ -332,7 +360,7 @@ CREATE TABLE `reversion_revision` (
   KEY `reversion_revision_user_id_17095f45_fk_auth_user_id` (`user_id`),
   KEY `reversion_revision_date_created_96f7c20c` (`date_created`),
   CONSTRAINT `reversion_revision_user_id_17095f45_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 --  Table structure for `reversion_version`
@@ -353,7 +381,7 @@ CREATE TABLE `reversion_version` (
   KEY `reversion_version_revision_id_af9f6a9d_fk_reversion_revision_id` (`revision_id`),
   CONSTRAINT `reversion_version_content_type_id_7d0ff25c_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   CONSTRAINT `reversion_version_revision_id_af9f6a9d_fk_reversion_revision_id` FOREIGN KEY (`revision_id`) REFERENCES `reversion_revision` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 --  Table structure for `xadmin_bookmark`
@@ -393,7 +421,7 @@ CREATE TABLE `xadmin_log` (
   KEY `xadmin_log_user_id_bb16a176_fk_auth_user_id` (`user_id`),
   CONSTRAINT `xadmin_log_content_type_id_2a6cb852_fk_django_content_type_id` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   CONSTRAINT `xadmin_log_user_id_bb16a176_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 --  Table structure for `xadmin_usersettings`

@@ -47,21 +47,26 @@ class VolumeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class SeriesListSerializer(serializers.ListSerializer):
-    class Meta:
-        model = Series
-        fields = '__all__'
-
-
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     volumes = VolumeSerializer(many=True)
     sutras = SutraSerializer(many=True)
 
+    def to_representation(self, instance):
+        '''
+            to_representation 将从 Model 取出的数据 parse 给 Api
+            to_internal_value 将客户端传来的 json 数据 parse 给 Model
+            当请求版本列表时, 不显示版本的目录信息.
+            参考: https://github.com/dbrgn/drf-dynamic-fields/blob/master/drf_dynamic_fields/__init__.py
+        '''
+        request = self.context['request']
+        if request.resolver_match.url_name == 'series-list':
+            self.fields.pop("volumes", None)
+            self.fields.pop("sutras", None)
+        return super().to_representation(instance)
+
     class Meta:
         model = Series
         fields = '__all__'
-        #list_serializer_class = SeriesListSerializer
-
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
