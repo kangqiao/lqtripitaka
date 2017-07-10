@@ -2,8 +2,10 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.contrib.auth.models import User, Group
+from django.views.generic import View
 from rest_framework import viewsets
 from .serializers import *
+from .forms import ImportTripitakaData
 
 
 class SeriesSet(viewsets.ReadOnlyModelViewSet):
@@ -68,3 +70,20 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+class ImportData(View):
+    def get(self, request):
+        series_id = request.GET.get('series_id', '')
+        if series_id:
+            series = Series.objects.get(pk=series_id)
+            if series:
+                series = SeriesSerializer(series)
+                return render(request, 'core/import_tripitaka.html', {'series': series})
+        return render(request, '500.html')
+
+    def post(self, request):
+        import_form = ImportTripitakaData(request.POST)
+        if import_form.is_valid():
+            return render(request, 'login.html')
+        return render(request, 'core/import_tripitaka.html', {})
+

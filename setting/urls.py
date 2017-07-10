@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     #url(r'^admin/', admin.site.urls),
     url(r'^xadmin/', include(xadmin.site.urls)),
+    url(r'core/import/', views.ImportData.as_view()),
     #url(r'^', include(xadmin.site.urls), name='index'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

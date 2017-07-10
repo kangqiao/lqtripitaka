@@ -49,6 +49,10 @@ class GlobalSetting(object):
     }
     menu_style = 'default'  # 'accordion'
 
+class PageResourceInline(object):
+    model = PageResource
+    extra = 1
+    style = "accordion"
 
 @xadmin.sites.register(Series)
 class SeriesAdmin(object):
@@ -70,6 +74,15 @@ class SeriesAdmin(object):
     real_sutra_count.allow_tags = True
     real_sutra_count.is_column = True
 
+    def real_roll_count(self, instance):
+        count = instance.rolls.count()
+        if count > 0:
+            return """<a href='/xadmin/core/roll/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
+        return count
+    real_roll_count.short_description = "实存卷数"
+    real_roll_count.allow_tags = True
+    real_roll_count.is_column = True
+
     def real_page_count(self, instance):
         count = Page.objects.filter(series=instance.id).count()
         if count > 0:
@@ -79,7 +92,13 @@ class SeriesAdmin(object):
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
-    list_display = ("code", "name", "type", "dynasty", "historic_site", "library_site", "book_reservation", "volume_count", "real_volume_count", "sutra_count", "real_sutra_count", "real_page_count", "publish_name", "publish_date")
+    def import_data(self, instance):
+        return """<a href='/core/import/?series_id=%s'>导入</a>""" % instance.id
+    import_data.short_description = "导入数据"
+    import_data.allow_tags = True
+    import_data.is_column = True
+
+    list_display = ("code", "name", "type", "dynasty", "historic_site", "library_site", "book_reservation", "volume_count", "real_volume_count", "sutra_count", "real_sutra_count", "real_roll_count", "real_page_count", "publish_name", "publish_date", "import_data")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name", 'dynasty', 'type', 'publish_name']
     relfield_style = "fk-select"
@@ -97,7 +116,7 @@ class VolumeAdmin(object):
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
-    list_display = ("code", "name", "series", "real_page_count", "remark")
+    list_display = ("code", "name", "series", "page_count", "real_page_count", "resource", "remark")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name"]
     list_filter = ["series", "name", ("code", MultiSelectFieldListFilter),]
@@ -124,10 +143,11 @@ class SutraAdmin(object):
     real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
     real_page_count.is_column = True
-    list_display = ("code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "roll_count", "real_roll_count", "real_page_count", "qianziwen")
+
+    list_display = ("code", "name", "type", "clazz", "lqsutra", "series", "translator", "dynasty", "historic_site", "roll_count", "page_count", "real_roll_count", "real_page_count", "qianziwen", "resource")
     list_display_links = ("code", "name",)
-    search_fields = ["code", "name", "type", "clazz", "series", "translator", "dynasty", "historic_site", "qianziwen"]
-    list_filter = ["series", "name", ("code", MultiSelectFieldListFilter),]
+    search_fields = ["code", "name", "type", "clazz", "lqsutra", "series", "translator", "dynasty", "historic_site", "qianziwen"]
+    list_filter = ["series", "name", ("code", MultiSelectFieldListFilter), "lqsutra", "series", "translator",]
     relfield_style = "fk-select"
     reversion_enable = True
 
@@ -143,17 +163,12 @@ class RollAdmin(object):
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
-    list_display = ("code", "name", "series", "sutra", "page_count", "real_page_count", "qianziwen")
+    list_display = ("code", "name", "type", "series", "sutra", "page_count", "real_page_count", "qianziwen")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name", "qianziwen"]
     list_filter = ["series", "sutra", "code", ]
     relfield_style = "fk-select"
     reversion_enable = True
-
-class PageResourceInline(object):
-    model = PageResource
-    extra = 1
-    style = "accordion"
 
 @xadmin.sites.register(Page)
 class PageAdmin(object):
@@ -165,7 +180,7 @@ class PageAdmin(object):
     open_page_resource.allow_tags = True
     open_page_resource.is_column = True
 
-    list_display = ("code", "name", "type", "series", "volume", "sutra", "roll", "pre_page", "next_page", "open_page_resource")
+    list_display = ("code", "name", "type", "series", "volume", "sutra", "roll", "open_page_resource")
     list_display_links = ("code", "name",)
 
     relfield_style = "fk-select"
@@ -190,7 +205,26 @@ class PageAdmin(object):
     #         )
     # )
 
+@xadmin.sites.register(lqSutra)
+class lqSutraAdmin(object):
+    def show_lqsutra_list(self, instance):
+        list = instance.lqsutra_list.all()
+        ret = """<a href="/xadmin/core/sutra/?_p_lqsutra__id__exact=%s" >""" % instance.id
+        for sutra in list:
+            ret += """%s | """ % sutra.code
+        ret += """</a>"""
+        return ret
+    show_lqsutra_list.short_description = "龙泉收录"
+    show_lqsutra_list.allow_tags = True
+    show_lqsutra_list.is_column = True
 
+    list_display = ("code", "name", "show_lqsutra_list", "remark")
+    list_display_links = ("code", "name", )
+    list_filter = ["code", "name", ]
+
+    search_fields = ["name", "code"]
+    relfield_style = "fk-select"
+    reversion_enable = True
 
 @xadmin.sites.register(Translator)
 class TranslatorAdmin(object):

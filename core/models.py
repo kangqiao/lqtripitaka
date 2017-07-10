@@ -29,6 +29,9 @@ class Series(models.Model):
     )
     volume_count = models.IntegerField(null=True, blank=True, verbose_name="册数")
     sutra_count = models.IntegerField(null=True, blank=True, verbose_name="经数")
+    roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
+    page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
+    word_count = models.IntegerField(null=True, blank=True, verbose_name='字数')
     dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="刊刻时间")
     historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="刊刻地点")
     library_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="馆藏地")
@@ -54,8 +57,10 @@ class Volume(models.Model):
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='册名')
     series = models.ForeignKey(Series, null=True, blank=True, related_name='volumes', on_delete=models.SET_NULL, verbose_name='版本')
+    page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
     start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
     end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
+    resource = models.FileField(null=True, blank=True, verbose_name='资源')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def __str__(self):
@@ -87,16 +92,20 @@ class Sutra(models.Model):
         verbose_name='类型'
     )
     series = models.ForeignKey(Series, null=True, blank=True, related_name='sutras', on_delete=models.SET_NULL, verbose_name='版本')
+    #clazz = models.CharField(max_length=64, null=True, blank=True, verbose_name="部别")
     clazz = models.CharField(max_length=64, null=True, blank=True, verbose_name="部别")
+    lqsutra = models.ForeignKey('lqSutra', null=True, blank=True, related_name='lqsutra_list', on_delete=models.SET_NULL, verbose_name='龙泉收录')
     translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
     dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="朝代")
     historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="译经地点")
     roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
+    page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
     start_volume = models.UUIDField(null=True, blank=True, verbose_name="起始册")
     end_volume = models.UUIDField(null=True, blank=True, verbose_name="终止册")
     start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
     end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
     qianziwen = models.CharField(max_length=8, null=True, blank=True, verbose_name='千字文')
+    resource = models.FileField(null=True, blank=True, verbose_name='资源')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def __str__(self):
@@ -109,10 +118,25 @@ class Sutra(models.Model):
 
 
 class Roll(models.Model):
+    TYPE_CHOICES = (
+        ('roll', '卷'),
+        ('preface', '序'),
+        ('all_preface', '总序'),
+        ('origin_preface', '原序'),
+        ('catalogue', '总目'),
+        ('postscript', '跋'),
+        ('corrigenda', "勘误表")
+    )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='卷名')
-    series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='版本')
+    type = models.CharField(
+        max_length=16,
+        choices=TYPE_CHOICES,
+        default='roll',
+        verbose_name='类型'
+    )
+    series = models.ForeignKey(Series, null=True, blank=True, related_name='rolls', on_delete=models.SET_NULL, verbose_name='版本')
     sutra = models.ForeignKey(Sutra, null=True, blank=True, related_name='rolls', on_delete=models.SET_NULL, verbose_name='经')
     page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
     start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
@@ -175,12 +199,15 @@ class PageResource(models.Model):
     TEXT = 'text'
     IMAGE = 'image'
     INSET = 'inset'
+    PDF = 'pdf'
     TYPE_CHOICES = (
         (TEXT, '文本'),
         (IMAGE, '图片'),
         (INSET, '插图'),
+        (PDF, 'PDF'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    #foreign_code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='资源来源')
     page = models.ForeignKey(Page, related_name='page_resources', on_delete=models.CASCADE, verbose_name='页')
     type = models.CharField(
         max_length=8,
@@ -240,6 +267,17 @@ class Translator(models.Model):
         verbose_name = u"作译者"
         verbose_name_plural = u"作译者管理"
 
+class lqSutra(models.Model):
+    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='龙泉编码')
+    name = models.CharField(max_length=64, verbose_name='龙泉经名')
+    remark = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    def __str__(self):
+        return self.code
+
+    class Meta:
+        verbose_name = u"龙泉经录"
+        verbose_name_plural = u"龙泉收录管理"
 
 SERIES = 'series'
 SUTRA = 'sutra'
