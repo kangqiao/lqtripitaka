@@ -78,7 +78,7 @@ docker-compose run web_tripitaka  python manage.py loaddata data.json
 - 你也可以用 Docker 作为本地的开发环境，这个时候应使用应修改 `manage.py`, 使用 `settingsdev.py` 而不是 `settings.py`
 - 登录 admin 后台时前，别忘了先创建超级用户
 ```bash
-docker-compose run lq_tripitaka python manage.py createsuperuser
+docker-compose run web_tripitaka python manage.py createsuperuser
 Username (leave blank to use 'root'): admin
 Email address: admin@126.com
 Password: admin

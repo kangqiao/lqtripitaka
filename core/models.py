@@ -139,6 +139,8 @@ class Roll(models.Model):
     series = models.ForeignKey(Series, null=True, blank=True, related_name='rolls', on_delete=models.SET_NULL, verbose_name='版本')
     sutra = models.ForeignKey(Sutra, null=True, blank=True, related_name='rolls', on_delete=models.SET_NULL, verbose_name='经')
     page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
+    start_volume = models.UUIDField(null=True, blank=True, verbose_name="起始册")
+    end_volume = models.UUIDField(null=True, blank=True, verbose_name="终止册")
     start_page = models.UUIDField(null=True, blank=True, verbose_name="起始页")
     end_page = models.UUIDField(null=True, blank=True, verbose_name='终止页')
     qianziwen = models.CharField(max_length=8, null=True, blank=True, verbose_name='千字文')
@@ -267,7 +269,7 @@ class Translator(models.Model):
         verbose_name = u"作译者"
         verbose_name_plural = u"作译者管理"
 
-class lqSutra(models.Model):
+class LQSutra(models.Model):
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='龙泉编码')
     name = models.CharField(max_length=64, verbose_name='龙泉经名')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')

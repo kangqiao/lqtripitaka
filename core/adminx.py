@@ -205,8 +205,8 @@ class PageAdmin(object):
     #         )
     # )
 
-@xadmin.sites.register(lqSutra)
-class lqSutraAdmin(object):
+@xadmin.sites.register(LQSutra)
+class LQSutraAdmin(object):
     def show_lqsutra_list(self, instance):
         list = instance.lqsutra_list.all()
         ret = """<a href="/xadmin/core/sutra/?_p_lqsutra__id__exact=%s" >""" % instance.id
