@@ -93,7 +93,7 @@ class SeriesAdmin(object):
     real_page_count.is_column = True
 
     def import_data(self, instance):
-        return """<a href='/core/import/?series_id=%s'>导入</a>""" % instance.id
+        return """<a href='/admin/core/roll/import/?series_id=%s'>导入</a>""" % instance.id
     import_data.short_description = "导入数据"
     import_data.allow_tags = True
     import_data.is_column = True
