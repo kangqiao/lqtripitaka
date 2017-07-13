@@ -46,28 +46,21 @@ class MyForeignKeyWidget(ForeignKeyWidget):
             setattr(instance, self.field, value)
         return instance
 
-class CodeWidget(ForeignKeyWidget):
+class CacheDuplicateWidget(ForeignKeyWidget):
+    cacheMap = {}
     def clean(self, value, row=None, *args, **kwargs):
         instance = None
         try:
-            instance = super(CodeWidget, self).clean(value, row)
+            instance = super(CacheDuplicateWidget, self).clean(value, row)
         except Exception as e:
             pass
         if not instance:
-            instance = self.model()
-            setattr(instance, self.field, value)
-        return instance
-
-class RollCodeWidget(ForeignKeyWidget):
-    def clean(self, value, row=None, *args, **kwargs):
-        instance = None
-        try:
-            instance = super(RollCodeWidget, self).clean(value, row)
-        except Exception as e:
-            pass
-        if not instance:
-            instance = self.model()
-            setattr(instance, self.field, value)
+            if value in CacheDuplicateWidget.cacheMap:
+                instance = CacheDuplicateWidget.cacheMap.get(value)
+            else:
+                instance = self.model()
+                setattr(instance, self.field, value)
+                CacheDuplicateWidget.cacheMap[value] = instance
         return instance
 
 class RollRescource(ModelResource):
@@ -78,27 +71,23 @@ class RollRescource(ModelResource):
     sutra = fields.Field(
         column_name='sutra',
         attribute='sutra',
-        widget=MyForeignKeyWidget(Series, 'code'))
-    code = fields.Field(
-        column_name='code',
-        attribute='code',
-        widget=RollCodeWidget(Roll, 'code'))
+        widget=MyForeignKeyWidget(Sutra, 'code'))
     start_volume = fields.Field(
         column_name='start_volume',
         attribute='start_volume',
-        widget=CodeWidget(Volume, 'code'))
+        widget=CacheDuplicateWidget(Volume, 'code'))
     end_volume = fields.Field(
         column_name='end_volume',
         attribute='end_volume',
-        widget=CodeWidget(Volume, 'code'))
+        widget=CacheDuplicateWidget(Volume, 'code'))
     start_page = fields.Field(
         column_name='start_page',
         attribute='start_page',
-        widget=CodeWidget(Page, 'code'))
+        widget=CacheDuplicateWidget(Page, 'code'))
     end_page = fields.Field(
         column_name='end_page',
         attribute='end_page',
-        widget=CodeWidget(Page, 'code'))
+        widget=CacheDuplicateWidget(Page, 'code'))
     class Meta:
         model = Roll
         import_id_fields = ('code',)
@@ -112,6 +101,15 @@ class RollRescource(ModelResource):
             instance.series = instance.series
             instance.sutra.save()
             instance.sutra = instance.sutra
+            instance.start_volume.save()
+            instance.start_volume = instance.start_volume.code
+            instance.end_volume.save()
+            instance.end_volume = instance.end_volume.code
+            instance.start_page.save()
+            instance.start_page = instance.start_page.code
+            instance.end_page.save()
+            instance.end_page = instance.end_page.code
+
 
 class RollAdmin(ImportMixin, admin.ModelAdmin):
     def real_page_count(self, instance):
