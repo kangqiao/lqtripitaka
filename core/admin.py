@@ -7,32 +7,6 @@ from import_export import fields
 from import_export.widgets import Widget, ForeignKeyWidget
 from .models import *
 
-# class LQSutraResource(ModelResource):
-#     class Meta:
-#         model = LQSutra
-#
-#     def import_data(self, dataset, dry_run=False, raise_errors=False,
-#                     use_transactions=None, collect_failed_rows=False, **kwargs):
-#         pass
-#
-#     def before_import(self, dataset, using_transactions, dry_run, **kwargs):
-#         pass
-#
-#
-# class LQSutraAdmin(ImportMixin, admin.ModelAdmin):
-#     def show_lqsutra_list(self, instance):
-#         list = instance.lqsutra_list.all()
-#         ret = """<a href="/xadmin/core/sutra/?_p_lqsutra__id__exact=%s" >""" % instance.id
-#         for sutra in list:
-#             ret += """%s -> %s <br>""" % (sutra.code, sutra.name)
-#         ret += """</a>"""
-#         return ret
-#     show_lqsutra_list.short_description = "龙泉收录"
-#     show_lqsutra_list.allow_tags = True
-#     show_lqsutra_list.is_column = True
-#     list_display = ("code", "name", "show_lqsutra_list", "remark")
-#     resource_class = LQSutraResource
-
 
 class MyForeignKeyWidget(ForeignKeyWidget):
     def clean(self, value, row=None, *args, **kwargs):
@@ -62,6 +36,9 @@ class CacheDuplicateWidget(ForeignKeyWidget):
                 setattr(instance, self.field, value)
                 CacheDuplicateWidget.cacheMap[value] = instance
         return instance
+
+    def render(self, value, obj=None):
+        return value
 
 class RollRescource(ModelResource):
     series = fields.Field(
@@ -109,6 +86,16 @@ class RollRescource(ModelResource):
             instance.start_page = instance.start_page.code
             instance.end_page.save()
             instance.end_page = instance.end_page.code
+
+
+    def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
+        if using_transactions:
+            if dry_run or result.has_errors():
+                pass
+            else:
+                #此处可做一些数据的统计, 例如新增多少, 更新多少,
+                #还有, 对此次导入的卷数, 册数, 经数, 页数, 以及初始化所有页基础数据.
+                pass
 
 
 class RollAdmin(ImportMixin, admin.ModelAdmin):

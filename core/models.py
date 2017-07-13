@@ -4,7 +4,7 @@ from django.db import models
 
 from django.db import models
 import uuid
-
+from .utils import StrUtil
 '''
 [Django API](https://docs.djangoproject.com/en/1.11/)
 [Django中null和blank的区别](http://www.tuicool.com/articles/2ABJbmj)
@@ -43,6 +43,12 @@ class Series(models.Model):
     publish_ISBN = models.CharField(max_length=64, null=True, blank=True, verbose_name="ISBN")
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
+    def init_data(self, roll):
+        pass
+
+    def before_save(self, roll):
+        pass
+
     def __str__(self):
         return self.name
 
@@ -62,6 +68,12 @@ class Volume(models.Model):
     end_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='终止页')
     resource = models.FileField(null=True, blank=True, verbose_name='资源')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    def init_data(self, roll):
+        pass
+
+    def before_save(self, roll):
+        pass
 
     def __str__(self):
         return self.name
@@ -108,6 +120,12 @@ class Sutra(models.Model):
     resource = models.FileField(null=True, blank=True, verbose_name='资源')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
+    def init_data(self, roll):
+        pass
+
+    def before_save(self, roll):
+        pass
+
     def __str__(self):
         return self.name
 
@@ -145,6 +163,36 @@ class Roll(models.Model):
     end_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='终止页')
     qianziwen = models.CharField(max_length=8, null=True, blank=True, verbose_name='千字文')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    def init_data(self):
+        self.name = self.code
+        self.type = StrUtil.roll_type(self.code)
+        if not self.series:
+            self.series.init_data(self)
+        if not self.sutra:
+            self.series.init_data(self)
+        if isinstance(self.start_volume, Volume):
+            self.start_volume.init_data(self)
+        if isinstance(self.end_volume, Volume):
+            self.end_volume.init_data(self)
+        if isinstance(self.start_page, Page):
+            self.start_page.init_data(self)
+        if isinstance(self.end_page, Page):
+            self.end_page.init_data(self)
+
+    def before_save(self):
+        if not self.series:
+            self.series.before_save(self)
+        if not self.sutra:
+            self.series.before_save(self)
+        if isinstance(self.start_volume, Volume):
+            self.start_volume.before_save(self)
+        if isinstance(self.end_volume, Volume):
+            self.end_volume.before_save(self)
+        if isinstance(self.start_page, Page):
+            self.start_page.before_save(self)
+        if isinstance(self.end_page, Page):
+            self.end_page.before_save(self)
 
     def __str__(self):
         return self.name
@@ -187,6 +235,12 @@ class Page(models.Model):
     roll = models.ForeignKey(Roll, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='卷')
     pre_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='上一页')
     next_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='下一页')
+
+    def init_data(self, roll):
+        pass
+
+    def before_save(self, roll):
+        pass
 
     def __str__(self):
         return self.name
