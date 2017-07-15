@@ -266,6 +266,9 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
+XADMIN_TITLE = _(u"龙泉大藏经")
+XADMIN_FOOTER_TITLE = _(u"北京 龙泉寺-AIITC.inc")
+
 from import_export.tmp_storages import MediaStorage
 MediaStorage.MEDIA_FOLDER = os.path.join(MEDIA_ROOT, 'import_export')
 IMPORT_EXPORT_TMP_STORAGE_CLASS = MediaStorage

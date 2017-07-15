@@ -20,6 +20,13 @@ class MyForeignKeyWidget(ForeignKeyWidget):
             setattr(instance, self.field, value)
         return instance
 
+# class SutraName(Widget):
+#     def clean(self, value, row=None, *args, **kwargs):
+#         return self._instance.sutra.name
+#
+#     def render(self, value, obj=None):
+#         return value
+
 class CacheDuplicateWidget(ForeignKeyWidget):
     cacheMap = {}
     def clean(self, value, row=None, *args, **kwargs):
@@ -49,6 +56,10 @@ class RollRescource(ModelResource):
         column_name='sutra',
         attribute='sutra',
         widget=MyForeignKeyWidget(Sutra, 'code'))
+    # name = fields.Field(
+    #     column_name='name',
+    #     attribute='name',
+    #     widget=SutraName())
     start_volume = fields.Field(
         column_name='start_volume',
         attribute='start_volume',
@@ -68,25 +79,25 @@ class RollRescource(ModelResource):
     class Meta:
         model = Roll
         import_id_fields = ('code',)
+        export_order = ('series', 'sutra', 'name', 'type', 'code', 'start_volume', 'start_page', 'end_page', 'end_volume', 'remark')
         fields = ('code', 'name', 'type', 'series', 'sutra', 'start_volume', 'end_volume', 'start_page', 'end_page', 'remark')
+
+    # def after_import_instance(self, instance, new, **kwargs):
+    #     for field in self.get_fields():
+    #         if isinstance(field.widget, SutraName):
+    #             field.widget._instance = instance
 
     def before_save_instance(self, instance, using_transactions, dry_run):
         if not using_transactions and dry_run:
             pass
         else:
-            instance.series.save()
-            instance.series = instance.series
-            instance.sutra.save()
-            instance.sutra = instance.sutra
-            instance.start_volume.save()
-            instance.start_volume = instance.start_volume.code
-            instance.end_volume.save()
-            instance.end_volume = instance.end_volume.code
-            instance.start_page.save()
-            instance.start_page = instance.start_page.code
-            instance.end_page.save()
-            instance.end_page = instance.end_page.code
+            instance.before_save()
 
+    def after_save_instance(self, instance, using_transactions, dry_run):
+        if not using_transactions and dry_run:
+            pass
+        else:
+            instance.after_save()
 
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         if using_transactions:
@@ -108,7 +119,7 @@ class RollAdmin(ImportMixin, admin.ModelAdmin):
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
-    list_display = ("code", "name", "type", "series", "sutra", "start_volume", "end_volume", "start_page", "end_page", "page_count", "real_page_count", "qianziwen")
+    list_display = ("series", "sutra", "code", "type", "name", "start_volume", "start_page", "end_page",  "end_volume", "real_page_count", "remark")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name"]
     list_filter = ["series", "sutra", "code", ]
@@ -118,3 +129,6 @@ class RollAdmin(ImportMixin, admin.ModelAdmin):
 
 # admin.site.register(LQSutra, LQSutraAdmin)
 admin.site.register(Roll, RollAdmin)
+admin.site.site_header = '龙泉大藏经'
+admin.site.site_title = '龙泉大藏经'
+admin.site.index_title = '龙泉大藏经'

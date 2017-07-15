@@ -4,7 +4,9 @@ from django.db import models
 
 from django.db import models
 import uuid
-from .utils import StrUtil
+from .utils import roll_type, getLastInt
+import re
+import operator
 '''
 [Django API](https://docs.djangoproject.com/en/1.11/)
 [Django中null和blank的区别](http://www.tuicool.com/articles/2ABJbmj)
@@ -43,11 +45,8 @@ class Series(models.Model):
     publish_ISBN = models.CharField(max_length=64, null=True, blank=True, verbose_name="ISBN")
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
-    def init_data(self, roll):
-        pass
-
-    def before_save(self, roll):
-        pass
+    def before_save(self, roll, code):
+        self.code = code
 
     def __str__(self):
         return self.name
@@ -69,11 +68,12 @@ class Volume(models.Model):
     resource = models.FileField(null=True, blank=True, verbose_name='资源')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
-    def init_data(self, roll):
-        pass
-
-    def before_save(self, roll):
-        pass
+    def before_save(self, roll, series, start_page_code, end_page_code):
+        self.series = series
+        if getLastInt(start_page_code) < getLastInt(self.start_page, 10000000000):
+            self.start_page = start_page_code
+        if getLastInt(end_page_code) > getLastInt(self.end_page, -1):
+            self.end_page = end_page_code
 
     def __str__(self):
         return self.name
@@ -120,11 +120,20 @@ class Sutra(models.Model):
     resource = models.FileField(null=True, blank=True, verbose_name='资源')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
-    def init_data(self, roll):
-        pass
+    def before_save(self, roll, series, sutra_code, sutra_name, start_volume_code, end_volume_code, start_page_code, end_page_code):
+        self.series = series
+        self.code = sutra_code
+        self.name = sutra_name
 
-    def before_save(self, roll):
-        pass
+        if getLastInt(start_volume_code) <= getLastInt(self.start_volume, 1000000):
+            self.start_volume = start_volume_code
+            if getLastInt(start_page_code) < getLastInt(self.start_page, 10000000):
+                self.start_page = start_page_code
+
+        if getLastInt(end_volume_code) >= getLastInt(self.end_volume):
+            self.end_volume = end_volume_code
+            if getLastInt(end_page_code) > getLastInt(self.end_page):
+                self.end_page = end_page_code
 
     def __str__(self):
         return self.name
@@ -164,35 +173,43 @@ class Roll(models.Model):
     qianziwen = models.CharField(max_length=8, null=True, blank=True, verbose_name='千字文')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
-    def init_data(self):
-        self.name = self.code
-        self.type = StrUtil.roll_type(self.code)
-        if not self.series:
-            self.series.init_data(self)
-        if not self.sutra:
-            self.series.init_data(self)
-        if isinstance(self.start_volume, Volume):
-            self.start_volume.init_data(self)
-        if isinstance(self.end_volume, Volume):
-            self.end_volume.init_data(self)
-        if isinstance(self.start_page, Page):
-            self.start_page.init_data(self)
-        if isinstance(self.end_page, Page):
-            self.end_page.init_data(self)
-
     def before_save(self):
-        if not self.series:
-            self.series.before_save(self)
-        if not self.sutra:
-            self.series.before_save(self)
+        sutra_name = self.name
+        self.name = str(getLastInt(self.code))
+        #self.type = roll_type(self.code)
+
+        if isinstance(self.series, Series):
+            self.series.before_save(self, self.series.code)
+            self.series.save()
+            self.series = self.series
+
+        if isinstance(self.sutra, Sutra):
+            self.sutra.before_save(self, self.series, self.sutra.code, sutra_name, self.start_volume.code,  self.end_volume.code, self.start_page.code, self.end_page.code)
+            self.sutra.save()
+            self.sutra = self.sutra
+
         if isinstance(self.start_volume, Volume):
-            self.start_volume.before_save(self)
+            self.start_volume.before_save(self, self.series, self.start_page.code, self.end_page.code)
+            self.start_volume.save()
+            self.start_volume = self.start_volume.code
         if isinstance(self.end_volume, Volume):
-            self.end_volume.before_save(self)
-        if isinstance(self.start_page, Page):
-            self.start_page.before_save(self)
-        if isinstance(self.end_page, Page):
-            self.end_page.before_save(self)
+            self.end_volume.before_save(self, self.series, self.start_page.code, self.end_page.code)
+            self.end_volume.save()
+            self.end_volume = self.end_volume.code
+
+        self.tmp_start_page = self.start_page
+        self.start_page = self.start_page.code
+        self.tmp_end_page = self.end_page
+        self.end_page = self.end_page.code
+
+
+    def after_save(self):
+        if isinstance(self.tmp_start_page, Page):
+            self.tmp_start_page.before_save(self)
+            self.tmp_start_page.save()
+        if isinstance(self.tmp_end_page, Page):
+            self.tmp_end_page.before_save(self)
+            self.tmp_end_page.save()
 
     def __str__(self):
         return self.name
@@ -229,18 +246,22 @@ class Page(models.Model):
         default=CONTENT,
         verbose_name='类型'
     )
-    series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='部')
-    volume = models.ForeignKey(Volume, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='册')
-    sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
+    # series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='部')
+    # volume = models.ForeignKey(Volume, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='册')
+    # sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
     roll = models.ForeignKey(Roll, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='卷')
+    # roll = models.CharField(max_length=64, null=True, blank=True, verbose_name='卷')
+    series = models.CharField(max_length=64, null=True, blank=True, verbose_name='部')
+    volume = models.CharField(max_length=64, null=True, blank=True, verbose_name='册')
+    sutra = models.CharField(max_length=64, null=True, blank=True, verbose_name='经')
     pre_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='上一页')
     next_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='下一页')
 
-    def init_data(self, roll):
-        pass
-
     def before_save(self, roll):
-        pass
+        self.roll = roll
+        self.volume = roll.start_volume
+        self.sutra = roll.sutra.code
+        self.series = roll.series.code
 
     def __str__(self):
         return self.name
