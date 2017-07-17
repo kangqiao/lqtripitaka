@@ -106,7 +106,7 @@ class Sutra(models.Model):
     series = models.ForeignKey(Series, null=True, blank=True, related_name='sutras', on_delete=models.SET_NULL, verbose_name='版本')
     #clazz = models.CharField(max_length=64, null=True, blank=True, verbose_name="部别")
     clazz = models.CharField(max_length=64, null=True, blank=True, verbose_name="部别")
-    lqsutra = models.ForeignKey('lqSutra', null=True, blank=True, related_name='lqsutra_list', on_delete=models.SET_NULL, verbose_name='龙泉收录')
+    lqsutra = models.ForeignKey('LQSutra', null=True, blank=True, related_name='lqsutra_list', on_delete=models.SET_NULL, verbose_name='龙泉收录')
     translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
     dynasty = models.CharField(max_length=64, null=True, blank=True, verbose_name="朝代")
     historic_site = models.CharField(max_length=64, null=True, blank=True, verbose_name="译经地点")
@@ -120,10 +120,9 @@ class Sutra(models.Model):
     resource = models.FileField(null=True, blank=True, verbose_name='资源')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
-    def before_save(self, roll, series, sutra_code, sutra_name, start_volume_code, end_volume_code, start_page_code, end_page_code):
+    def before_save(self, roll, series, sutra_code, start_volume_code, end_volume_code, start_page_code, end_page_code):
         self.series = series
         self.code = sutra_code
-        self.name = sutra_name
 
         if getLastInt(start_volume_code) <= getLastInt(self.start_volume, 1000000):
             self.start_volume = start_volume_code
@@ -134,6 +133,11 @@ class Sutra(models.Model):
             self.end_volume = end_volume_code
             if getLastInt(end_page_code) > getLastInt(self.end_page):
                 self.end_page = end_page_code
+
+        if self.lqsutra:
+            self.lqsutra.before_save(self, self.lqsutra.code, self.lqsutra.name)
+            self.lqsutra.save()
+            self.lqsutra = self.lqsutra
 
     def __str__(self):
         return self.name
@@ -174,7 +178,6 @@ class Roll(models.Model):
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def before_save(self):
-        sutra_name = self.name
         self.name = str(getLastInt(self.code))
         #self.type = roll_type(self.code)
 
@@ -184,7 +187,7 @@ class Roll(models.Model):
             self.series = self.series
 
         if isinstance(self.sutra, Sutra):
-            self.sutra.before_save(self, self.series, self.sutra.code, sutra_name, self.start_volume.code,  self.end_volume.code, self.start_page.code, self.end_page.code)
+            self.sutra.before_save(self, self.series, self.sutra.code, self.start_volume.code,  self.end_volume.code, self.start_page.code, self.end_page.code)
             self.sutra.save()
             self.sutra = self.sutra
 
@@ -345,9 +348,14 @@ class Translator(models.Model):
         verbose_name_plural = u"作译者管理"
 
 class LQSutra(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='龙泉编码')
     name = models.CharField(max_length=64, verbose_name='龙泉经名')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
+
+    def before_save(self, sutra, code, name):
+        self.code = code
+        self.name = name
 
     def __str__(self):
         return self.code

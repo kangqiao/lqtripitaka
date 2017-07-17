@@ -6,6 +6,7 @@ from import_export.admin import ImportExportMixin, ImportMixin, ExportActionMode
 from import_export import fields
 from import_export.widgets import Widget, ForeignKeyWidget
 from .models import *
+from django.db.models.fields import NOT_PROVIDED
 
 
 class MyForeignKeyWidget(ForeignKeyWidget):
@@ -13,6 +14,36 @@ class MyForeignKeyWidget(ForeignKeyWidget):
         instance = None
         try:
             instance = super(MyForeignKeyWidget, self).clean(value, row)
+        except Exception as e:
+            pass
+        if not instance:
+            instance = self.model()
+            setattr(instance, self.field, value)
+        return instance
+
+class TwoNestedField(fields.Field):
+
+    def __init__(self, nested_field, attribute=None, column_name=None, widget=None,
+                 default=NOT_PROVIDED, readonly=False):
+        self.nested_field = nested_field
+        super(TwoNestedField, self).__init__(attribute, column_name, widget, default, readonly)
+
+    def save(self, obj, data):
+        if not self.readonly:
+            attrs = self.attribute.split('__')
+            for attr in attrs:
+                if attr == self.nested_field.attribute:
+                    if not self.nested_field.readonly:
+                        obj = self.nested_field.get_value(obj)
+                #obj = getattr(obj, attr, None)
+            setattr(obj, attrs[-1], self.clean(data))
+
+
+class ForeignForeignKeyWidget(ForeignKeyWidget):
+    def clean(self, value, row=None, *args, **kwargs):
+        instance = None
+        try:
+            instance = super(ForeignForeignKeyWidget, self).clean(value, row)
         except Exception as e:
             pass
         if not instance:
@@ -56,10 +87,19 @@ class RollRescource(ModelResource):
         column_name='sutra',
         attribute='sutra',
         widget=MyForeignKeyWidget(Sutra, 'code'))
-    # name = fields.Field(
-    #     column_name='name',
-    #     attribute='name',
-    #     widget=SutraName())
+    sutra__name = fields.Field(
+        column_name='sutra__name',
+        attribute='sutra__name',
+        readonly=False)
+    sutra__lqsutra = TwoNestedField(
+        nested_field= sutra,
+        column_name='sutra__lqsutra',
+        attribute='sutra__lqsutra',
+        widget=ForeignForeignKeyWidget(LQSutra, 'code'))
+    sutra__lqsutra__name = fields.Field(
+        column_name='sutra__lqsutra__name',
+        attribute='sutra__lqsutra__name',
+        readonly=False)
     start_volume = fields.Field(
         column_name='start_volume',
         attribute='start_volume',
@@ -79,8 +119,8 @@ class RollRescource(ModelResource):
     class Meta:
         model = Roll
         import_id_fields = ('code',)
-        export_order = ('series', 'sutra', 'name', 'type', 'code', 'start_volume', 'start_page', 'end_page', 'end_volume', 'remark')
-        fields = ('code', 'name', 'type', 'series', 'sutra', 'start_volume', 'end_volume', 'start_page', 'end_page', 'remark')
+        export_order = ('series', 'sutra', 'sutra__name', 'sutra__lqsutra', 'sutra__lqsutra__name', 'type', 'code', 'start_volume', 'start_page', 'end_page', 'end_volume', 'remark')
+        fields = ('series', 'sutra', 'sutra__name', 'sutra__lqsutra', 'sutra__lqsutra__name', 'code', 'type', 'start_volume', 'end_volume', 'start_page', 'end_page', 'remark')
 
     # def after_import_instance(self, instance, new, **kwargs):
     #     for field in self.get_fields():
