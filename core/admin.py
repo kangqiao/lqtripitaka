@@ -29,34 +29,11 @@ class TwoNestedField(fields.Field):
         super(TwoNestedField, self).__init__(attribute, column_name, widget, default, readonly)
 
     def save(self, obj, data):
-        if not self.readonly:
-            attrs = self.attribute.split('__')
-            for attr in attrs:
-                if attr == self.nested_field.attribute:
-                    if not self.nested_field.readonly:
-                        obj = self.nested_field.get_value(obj)
-                #obj = getattr(obj, attr, None)
-            setattr(obj, attrs[-1], self.clean(data))
-
-
-class ForeignForeignKeyWidget(ForeignKeyWidget):
-    def clean(self, value, row=None, *args, **kwargs):
-        instance = None
-        try:
-            instance = super(ForeignForeignKeyWidget, self).clean(value, row)
-        except Exception as e:
-            pass
-        if not instance:
-            instance = self.model()
-            setattr(instance, self.field, value)
-        return instance
-
-# class SutraName(Widget):
-#     def clean(self, value, row=None, *args, **kwargs):
-#         return self._instance.sutra.name
-#
-#     def render(self, value, obj=None):
-#         return value
+        if not self.nested_field.readonly:
+            obj = self.nested_field.get_value(obj)
+            if obj and not self.readonly:
+                attrs = self.attribute.split('__')
+                setattr(obj, attrs[-1], self.clean(data))
 
 class CacheDuplicateWidget(ForeignKeyWidget):
     cacheMap = {}
@@ -95,7 +72,7 @@ class RollRescource(ModelResource):
         nested_field= sutra,
         column_name='sutra__lqsutra',
         attribute='sutra__lqsutra',
-        widget=ForeignForeignKeyWidget(LQSutra, 'code'))
+        widget=MyForeignKeyWidget(LQSutra, 'code'))
     sutra__lqsutra__name = fields.Field(
         column_name='sutra__lqsutra__name',
         attribute='sutra__lqsutra__name',
