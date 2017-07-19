@@ -9,23 +9,6 @@ from .models import *
 from django.db.models.fields import NOT_PROVIDED
 
 
-class CodeConvertWidget(Widget):
-    def __init__(self, prefix=""):
-        self.prefix = prefix
-        self.prefix_len = len(prefix)
-
-    def clean(self, value, row=None, *args, **kwargs):
-        value = str(value)
-        if value and self.prefix and not value.startswith(self.prefix):
-            value = self.prefix + value
-        return value
-
-    def render(self, value, obj=None):
-        value = str(value)
-        if value and self.prefix and value.startswith(self.prefix):
-            value = value[self.prefix_len:]
-        return value
-
 class MyForeignKeyWidget(ForeignKeyWidget):
     def clean(self, value, row=None, *args, **kwargs):
         instance = None
@@ -37,37 +20,6 @@ class MyForeignKeyWidget(ForeignKeyWidget):
             instance = self.model()
             setattr(instance, self.field, value)
         return instance
-
-class CacheDuplicateWidget(ForeignKeyWidget):
-    def __init__(self, model, field='pk', prefix="", *args, **kwargs):
-        self.prefix = prefix
-        self.prefix_len = len(prefix)
-        super(CacheDuplicateWidget, self).__init__(model, field, *args, **kwargs)
-
-    cacheMap = {}
-    def clean(self, value, row=None, *args, **kwargs):
-        instance = None
-        value = str(value)
-        if value and self.prefix and not value.startswith(self.prefix):
-            value = self.prefix + value
-        try:
-            instance = super(CacheDuplicateWidget, self).clean(value, row)
-        except Exception as e:
-            pass
-        if not instance:
-            if value in CacheDuplicateWidget.cacheMap:
-                instance = CacheDuplicateWidget.cacheMap.get(value)
-            else:
-                instance = self.model()
-                setattr(instance, self.field, value)
-                CacheDuplicateWidget.cacheMap[value] = instance
-        return instance
-
-    def render(self, value, obj=None):
-        value = str(value)
-        if value and self.prefix and value.startswith(self.prefix):
-            value = value[self.prefix_len:]
-        return value
 
 class TwoNestedField(fields.Field):
 
@@ -82,6 +34,26 @@ class TwoNestedField(fields.Field):
             if obj and not self.readonly:
                 attrs = self.attribute.split('__')
                 setattr(obj, attrs[-1], self.clean(data))
+
+class CacheDuplicateWidget(ForeignKeyWidget):
+    cacheMap = {}
+    def clean(self, value, row=None, *args, **kwargs):
+        instance = None
+        try:
+            instance = super(CacheDuplicateWidget, self).clean(value, row)
+        except Exception as e:
+            pass
+        if not instance:
+            if value in CacheDuplicateWidget.cacheMap:
+                instance = CacheDuplicateWidget.cacheMap.get(value)
+            else:
+                instance = self.model()
+                setattr(instance, self.field, value)
+                CacheDuplicateWidget.cacheMap[value] = instance
+        return instance
+
+    def render(self, value, obj=None):
+        return value
 
 class RollRescource(ModelResource):
     series = fields.Field(
@@ -105,27 +77,22 @@ class RollRescource(ModelResource):
         column_name='sutra__lqsutra__name',
         attribute='sutra__lqsutra__name',
         readonly=False)
-    code = fields.Field(
-        column_name='code',
-        attribute='code',
-        readonly=False,
-        widget=CodeConvertWidget(prefix="QL_SR"))
     start_volume = fields.Field(
         column_name='start_volume',
         attribute='start_volume',
-        widget=CacheDuplicateWidget(Volume, 'code', prefix="QL_V"))
+        widget=CacheDuplicateWidget(Volume, 'code'))
     end_volume = fields.Field(
         column_name='end_volume',
         attribute='end_volume',
-        widget=CacheDuplicateWidget(Volume, 'code', prefix="QL_V"))
+        widget=CacheDuplicateWidget(Volume, 'code'))
     start_page = fields.Field(
         column_name='start_page',
         attribute='start_page',
-        widget=CacheDuplicateWidget(Page, 'code', prefix="QL_VP"))
+        widget=CacheDuplicateWidget(Page, 'code'))
     end_page = fields.Field(
         column_name='end_page',
         attribute='end_page',
-        widget=CacheDuplicateWidget(Page, 'code', prefix="QL_VP"))
+        widget=CacheDuplicateWidget(Page, 'code'))
     class Meta:
         model = Roll
         import_id_fields = ('code',)
