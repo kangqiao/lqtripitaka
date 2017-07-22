@@ -15,6 +15,7 @@ import os
 import os.path
 from django.utils import six
 
+sys.setrecursionlimit(5000)
 # mysql 数据库
 import pymysql
 

@@ -86,7 +86,7 @@ class SeriesAdmin(object):
     def real_page_count(self, instance):
         count = Page.objects.filter(series=instance.id).count()
         if count > 0:
-            return """<a href='/xadmin/core/page/?_p_series__id__exact=%s'>%s</a>""" % (instance.id, count)
+            return """<a href='/xadmin/core/page/?_p_series__code__exact=%s'>%s</a>""" % (instance.code, count)
         return count
     real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
@@ -108,9 +108,9 @@ class SeriesAdmin(object):
 @xadmin.sites.register(Volume)
 class VolumeAdmin(object):
     def real_page_count(self, instance):
-        count = Page.objects.filter(volume=instance.id).count()
+        count = Page.objects.filter(volume=instance.code).count()
         if count > 0:
-            return """<a href='/xadmin/core/page/?_p_volume__id__exact=%s'>%s</a>""" % (instance.id, count)
+            return """<a href='/xadmin/core/page/?_p_volume__code__exact=%s'>%s</a>""" % (instance.code, count)
         return count
     real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
@@ -138,7 +138,7 @@ class SutraAdmin(object):
     def real_page_count(self, instance):
         count = Page.objects.filter(sutra=instance.id).count()
         if count > 0:
-            return """<a href='/xadmin/core/page/?_p_sutra__id__exact=%s'>%s</a>""" % (instance.id, count)
+            return """<a href='/xadmin/core/page/?_p_sutra__code__exact=%s'>%s</a>""" % (instance.code, count)
         return count
     real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
@@ -181,7 +181,7 @@ class PageAdmin(object):
     open_page_resource.is_column = True
 
     list_display = ("code", "name", "type", "series", "volume", "sutra", "roll", "open_page_resource")
-    list_display_links = ("code", "name",)
+    list_display_links = ("code", "name", "series", "volume", "sutra", "roll",)
 
     relfield_style = "fk-select"
     style_fields = {"system": "radio-inline"}
@@ -218,7 +218,13 @@ class LQSutraAdmin(object):
     show_lqsutra_list.allow_tags = True
     show_lqsutra_list.is_column = True
 
-    list_display = ("code", "name", "show_lqsutra_list", "remark")
+    def import_data(self, instance):
+        return """<a href='/admin/core/lqsutra/import/?lqsutra_id=%s'>导入</a>""" % instance.id
+    import_data.short_description = "导入数据"
+    import_data.allow_tags = True
+    import_data.is_column = True
+
+    list_display = ("code", "name", "show_lqsutra_list", "translator", "roll_count", "remark", "import_data")
     list_display_links = ("code", "name", )
     list_filter = ["code", "name", ]
 

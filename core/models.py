@@ -134,10 +134,10 @@ class Sutra(models.Model):
             if getLastInt(end_page_code) > getLastInt(self.end_page):
                 self.end_page = end_page_code
 
-        if self.lqsutra:
-            self.lqsutra.before_save(self, self.lqsutra.code, self.lqsutra.name)
-            self.lqsutra.save()
-            self.lqsutra = self.lqsutra
+        # if self.lqsutra:
+        #     self.lqsutra.before_save(self, self.lqsutra.code)
+        #     self.lqsutra.save()
+        #     self.lqsutra = self.lqsutra
 
     def __str__(self):
         return self.name
@@ -181,15 +181,16 @@ class Roll(models.Model):
         self.name = str(getLastInt(self.code))
         #self.type = roll_type(self.code)
 
-        if isinstance(self.series, Series):
-            self.series.before_save(self, self.series.code)
-            self.series.save()
-            self.series = self.series
-
         if isinstance(self.sutra, Sutra):
-            self.sutra.before_save(self, self.series, self.sutra.code, self.start_volume.code,  self.end_volume.code, self.start_page.code, self.end_page.code)
+            # 如果经的版本信息没有, 需要找到.并关联上, 这可能是一条新的记录, 所以没有
+            if not self.sutra.series:
+                series_re = re.findall(r'^([a-zA-Z]+)\d+', self.sutra.code)
+                series_code = series_re[0] if series_re else ''
+                self.sutra.series = Series.objects.all().get(code=series_code)
+            self.sutra.before_save(self, self.sutra.series, self.sutra.code, self.start_volume.code,  self.end_volume.code, self.start_page.code, self.end_page.code)
             self.sutra.save()
             self.sutra = self.sutra
+            self.series = self.sutra.series
 
         if isinstance(self.start_volume, Volume):
             self.start_volume.before_save(self, self.series, self.start_page.code, self.end_page.code)
@@ -264,7 +265,7 @@ class Page(models.Model):
         self.roll = roll
         self.volume = roll.start_volume
         self.sutra = roll.sutra.code
-        self.series = roll.series.code
+        self.series = roll.series.code if roll.series else ''
 
     def __str__(self):
         return self.name
@@ -351,11 +352,13 @@ class LQSutra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='龙泉编码')
     name = models.CharField(max_length=64, verbose_name='龙泉经名')
+    translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
+    roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
-    def before_save(self, sutra, code, name):
-        self.code = code
-        self.name = name
+    def before_save(self):
+        if isinstance(self.translator, Translator):
+            self.translator.save()
 
     def __str__(self):
         return self.code

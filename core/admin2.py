@@ -99,10 +99,20 @@ class RollRescource(ModelResource):
         export_order = ('series', 'sutra', 'sutra__name', 'sutra__lqsutra', 'sutra__lqsutra__name', 'type', 'code', 'start_volume', 'start_page', 'end_page', 'end_volume', 'remark')
         fields = ('series', 'sutra', 'sutra__name', 'sutra__lqsutra', 'sutra__lqsutra__name', 'code', 'type', 'start_volume', 'end_volume', 'start_page', 'end_page', 'remark')
 
-    # def after_import_instance(self, instance, new, **kwargs):
-    #     for field in self.get_fields():
-    #         if isinstance(field.widget, SutraName):
-    #             field.widget._instance = instance
+    def before_import_row(self, row, **kwargs):
+        # 根据row为每个字段生成前缀
+        series_code = row[self.fields['series'].column_name]
+        sutra_code = row[self.fields['sutra'].column_name]
+        # 卷的前缀
+        self.fields['code'].widget._prefix = sutra_code + '_R'
+        # 册的前缀
+        volume_prefix = series_code + '_V'
+        self.fields['start_volume'].widget._prefix = volume_prefix
+        self.fields['end_volume'].widget._prefix = volume_prefix
+        # 页的前缀
+        self.fields['start_page'].widget._prefix = volume_prefix + str(row[self.fields['start_volume'].column_name]) + '_P'
+        self.fields['end_page'].widget._prefix = volume_prefix + str(row[self.fields['end_volume'].column_name]) + '_P'
+
 
     def before_save_instance(self, instance, using_transactions, dry_run):
         if not using_transactions and dry_run:
