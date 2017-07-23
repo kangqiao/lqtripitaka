@@ -141,7 +141,9 @@ class Sutra(models.Model):
         if self.series is None:
             code = getFirstCharCode(self.code)
             if code:
-                self.series = Series.objects.all().get(code=code)
+
+                instance = get_instance(Series, 'code', code, create_no_exist=True, save_no_exist=True)
+                self.series = instance
 
         # 如果lqsutra_code为空或者根据它没有找到相应的龙泉经目信息, 就置为空.
         if self.lqsutra and not self.lqsutra.name:

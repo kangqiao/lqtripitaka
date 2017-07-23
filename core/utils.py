@@ -31,15 +31,17 @@ def call_delete_instance(code, model):
         except model.DoesNotExist as e:
             pass
 
-def get_instance(model, attr, value, create_if_exist=True):
+def get_instance(model, attr, value, create_no_exist=True, save_no_exist=False):
     instance = None
     try:
         instance = model.objects.all().get(**{attr: value})
     except model.DoesNotExist as e:
         pass
-    if create_if_exist and instance is None:
+    if create_no_exist and instance is None:
         instance = model()
         setattr(instance, attr, value)
+        if save_no_exist and instance:
+            instance.save()
     return instance
 
 def cmp(a, b):
