@@ -118,7 +118,7 @@ class RollRescource(ModelResource):
         if not using_transactions and dry_run:
             pass
         else:
-            instance.before_save()
+            instance.save_by_roll()
 
     def after_save_instance(self, instance, using_transactions, dry_run):
         if not using_transactions and dry_run:

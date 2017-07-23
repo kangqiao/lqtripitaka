@@ -12,7 +12,8 @@ ALLOWED_HOSTS += INTERNAL_IPS
 ALLOWED_HOSTS.append('localhost')
 
 # 重置 setting 里的 STATIC_ROOT 配置
-STATIC_ROOT = ''
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 # static 目录配置
 # 如果 DEBUG 为 False 这里就会失效，需要用 NGIX 代理

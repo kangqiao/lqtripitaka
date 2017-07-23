@@ -15,6 +15,9 @@ import os
 import os.path
 from django.utils import six
 
+# Python的最大递归深度错误
+# http://leyex.blog.51cto.com/4230949/1884041
+# https://cyrusin.github.io/2015/12/08/python-20151208/
 sys.setrecursionlimit(5000)
 # mysql 数据库
 import pymysql

@@ -28,7 +28,11 @@ class MainDashboard(object):
             {"type": "chart", "model": "core.accessrecord", "chart": "user_count","params": {"_p_date__gte": "2017-01-01", "p": 1, "_p_date__lt": "2017-06-16"}},
         ],
         [
-            {"type": "qbutton", "title": "Quick Start","btns": [{"model": Series}, {"model": Sutra}, {"title": "Google", "url": "http://www.google.com"}]},
+            {"type": "qbutton", "title": "藏经版本Excel导入四部曲","btns": [
+                {"title": "龙泉经目导入", "url": "/admin/core/lqsutra/import/"},
+                {"title": "创建版本信息", "url": "/xadmin/core/series/add/"},
+                {"title": "经目导入", "url": "/admin/core/lustra/import/"},
+                {"title": "卷详目导入", "url": "/admin/core/roll/import/"}]},
             #{"type": "addform", "model": Series},
             {"type": "list", "model": "core.Sutra", "params": {"o": "-code"}}
         ]
@@ -92,13 +96,13 @@ class SeriesAdmin(object):
     real_page_count.allow_tags = True
     real_page_count.is_column = True
 
-    def import_data(self, instance):
-        return """<a href='/admin/core/roll/import/?series_id=%s'>导入</a>""" % instance.id
-    import_data.short_description = "导入数据"
-    import_data.allow_tags = True
-    import_data.is_column = True
+    # def import_data(self, instance):
+    #     return """<a href='/admin/core/roll/import/?series_id=%s'>导入</a>""" % instance.id
+    # import_data.short_description = "导入数据"
+    # import_data.allow_tags = True
+    # import_data.is_column = True
 
-    list_display = ("code", "name", "type", "dynasty", "historic_site", "library_site", "book_reservation", "volume_count", "real_volume_count", "sutra_count", "real_sutra_count", "real_roll_count", "real_page_count", "publish_name", "publish_date", "import_data")
+    list_display = ("code", "name", "type", "dynasty", "historic_site", "library_site", "book_reservation", "volume_count", "real_volume_count", "sutra_count", "real_sutra_count", "real_roll_count", "real_page_count", "publish_name", "publish_date")
     list_display_links = ("code", "name",)
     search_fields = ["code", "name", 'dynasty', 'type', 'publish_name']
     relfield_style = "fk-select"
@@ -218,13 +222,13 @@ class LQSutraAdmin(object):
     show_lqsutra_list.allow_tags = True
     show_lqsutra_list.is_column = True
 
-    def import_data(self, instance):
-        return """<a href='/admin/core/lqsutra/import/?lqsutra_id=%s'>导入</a>""" % instance.id
-    import_data.short_description = "导入数据"
-    import_data.allow_tags = True
-    import_data.is_column = True
+    # def import_data(self, instance):
+    #     return """<a href='/admin/core/lqsutra/import/?lqsutra_id=%s'>导入</a>""" % instance.id
+    # import_data.short_description = "导入数据"
+    # import_data.allow_tags = True
+    # import_data.is_column = True
 
-    list_display = ("code", "name", "show_lqsutra_list", "translator", "roll_count", "remark", "import_data")
+    list_display = ("code", "name", "show_lqsutra_list", "translator", "roll_count", "remark")
     list_display_links = ("code", "name", )
     list_filter = ["code", "name", ]
 
