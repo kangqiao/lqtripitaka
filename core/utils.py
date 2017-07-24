@@ -14,20 +14,24 @@ def roll_type(code=""):
 
 last_code_re = re.compile(r'\D+(?P<code>\d+)$')
 def getLastIntCode(str, default=0):
+    if str is None:
+        return default
     m = last_code_re.search(str)
     return int(m.group('code')) if m else default
 
 pre_code_re = re.compile(r'^(?P<code>[a-zA-Z]+)\d+\w*$')
 def getFirstCharCode(str, default=''):
+    if str is None:
+        return default
     m = pre_code_re.search(str)
     return m.group('code') if m else default
 
-def call_delete_instance(code, model):
+def call_delete_instance(code, model, all=False):
     if code:
         try:
             instance = model.objects.all().get(code=code)
-            if instance:
-                instance.delete_instance()
+            if instance and hasattr(instance, 'delete_instance'):
+                instance.delete_instance(all=all)
         except model.DoesNotExist as e:
             pass
 

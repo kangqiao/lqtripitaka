@@ -70,10 +70,10 @@ class Volume(models.Model):
         if roll:
             self.series = roll.series
             if roll.start_page and roll.end_page:
-                if getLastIntCode(roll.start_page.code) < getLastIntCode(self.start_page, 10000000000):
-                    self.start_page = roll.start_page.code
-                if getLastIntCode(roll.end_page.code) > getLastIntCode(self.end_page, -1):
-                    self.end_page = roll.end_page.code
+                if getLastIntCode(roll.start_page) < getLastIntCode(self.start_page, 10000000000):
+                    self.start_page = roll.start_page
+                if getLastIntCode(roll.end_page) > getLastIntCode(self.end_page, -1):
+                    self.end_page = roll.end_page
             self.save()
 
     def save_by_sutra(self, sutra=None):
@@ -136,12 +136,10 @@ class Sutra(models.Model):
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def before_save(self):
-        self.name = str(getLastIntCode(self.code))
-        # self.type = roll_type(self.code)
+        # self.type = sutra_type(self.code)
         if self.series is None:
             code = getFirstCharCode(self.code)
             if code:
-
                 instance = get_instance(Series, 'code', code, create_no_exist=True, save_no_exist=True)
                 self.series = instance
 
@@ -152,9 +150,9 @@ class Sutra(models.Model):
 
         if self.start_volume:
             instance = get_instance(Volume, 'code', self.start_volume)
-            if instance is None:
+            if instance:
                 instance.save_by_sutra(self)
-        if self.end_volume is None:
+        if self.end_volume:
             instance = get_instance(Volume, 'code', self.end_volume)
             if instance:
                 instance.save_by_sutra(self)
@@ -167,7 +165,10 @@ class Sutra(models.Model):
         if roll:
             # 如果经的版本信息没有, 需要找到.并关联上, 这可能是一条新的记录, 所以没有
             if self.series is None:
-                self.series = Series.objects.all().get(code=getFirstCharCode(self.code))
+                code = getFirstCharCode(self.code)
+                if code:
+                    instance = get_instance(Series, 'code', code, create_no_exist=True, save_no_exist=True)
+                    self.series = instance
 
             if getLastIntCode(roll.start_volume) <= getLastIntCode(self.start_volume, 1000000):
                 self.start_volume = roll.start_volume
@@ -179,20 +180,25 @@ class Sutra(models.Model):
                 if getLastIntCode(roll.end_page) > getLastIntCode(self.end_page):
                     self.end_page = roll.end_page
 
-            # if self.lqsutra:
-            #     self.lqsutra.save_by_sutra(self)
+            # 如果lqsutra_code为空或者根据它没有找到相应的龙泉经目信息, 就置为空.
+            if self.lqsutra and not self.lqsutra.name:
+                self._lqsutra = self.lqsutra
+                self.lqsutra = None
+            # 保存经
             self.save()
+            if hasattr(self, '_lqsutra'):
+                self.lqsutra = self._lqsutra
 
-    def delete_instance(self, all=False):
+    def before_delete(self, all=False):
         if all:
-            call_delete_instance(self.start_page, Page)
-            call_delete_instance(self.end_page, Page)
+            # call_delete_instance(self.start_page, Page)
+            # call_delete_instance(self.end_page, Page)
+            # 需要做下起始册到结束册的删除 ****
             call_delete_instance(self.start_volume, Volume)
             call_delete_instance(self.end_volume, Volume)
-        try:
-            Sutra.objects.get(id__exact=self.id).delete()
-        except Sutra.DoesNotExist as e:
-            pass
+            list = self.rolls.all()
+            for roll in list:
+                roll.before_delete(all)
 
     def __str__(self):
         return self.name
@@ -242,31 +248,30 @@ class Roll(models.Model):
 
         if self.start_volume:
             instance = get_instance(Volume, 'code', self.start_volume)
-            if instance is None:
-                instance.save_by_sutra(self)
+            if instance:
+                instance.save_by_roll(self)
         if self.end_volume:
             instance = get_instance(Volume, 'code', self.end_volume)
-            if instance is None:
-                instance.save_by_sutra(self)
+            if instance:
+                instance.save_by_roll(self)
 
     def after_save(self):
         if self.start_page:
             instance = get_instance(Page, 'code', self.start_page)
-            if instance is None:
-                instance.save_by_sutra(self)
+            if instance:
+                instance.save_by_roll(self)
         if self.end_page:
             instance = get_instance(Page, 'code', self.end_page)
-            if instance is None:
-                instance.save_by_sutra(self)
+            if instance:
+                instance.save_by_roll(self)
 
-    def delete_instance(self, all=False):
+    def before_delete(self, all=False):
         if all:
-            call_delete_instance(self.start_page, Page)
-            call_delete_instance(self.end_page, Page)
-        try:
-            Roll.objects.get(id__exact=self.id).delete()
-        except Roll.DoesNotExist as e:
-            pass
+            # call_delete_instance(self.start_page, Page)
+            # call_delete_instance(self.end_page, Page)
+            list = self.pages.all()
+            for page in list:
+                page.delete_instance(all)
 
     def __str__(self):
         return self.name
@@ -306,7 +311,7 @@ class Page(models.Model):
     # series = models.ForeignKey(Series, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='部')
     # volume = models.ForeignKey(Volume, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='册')
     # sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
-    roll = models.ForeignKey(Roll, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='卷')
+    roll = models.ForeignKey(Roll, null=True, blank=True, related_name='pages', on_delete=models.SET_NULL, verbose_name='卷')
     # roll = models.CharField(max_length=64, null=True, blank=True, verbose_name='卷')
     series = models.CharField(max_length=64, null=True, blank=True, verbose_name='部')
     volume = models.CharField(max_length=64, null=True, blank=True, verbose_name='册')
@@ -323,9 +328,11 @@ class Page(models.Model):
 
     def delete_instance(self, all=False):
         if all:
+            # 这里可以删除页相关的资源
             pass
         try:
             Page.objects.get(id__exact=self.id).delete()
+            # self.delete()
         except Page.DoesNotExist as e:
             pass
 
@@ -425,13 +432,14 @@ class LQSutra(models.Model):
     def after_save(self):
         pass
 
-    def delete_instance(self, all=False):
+    def before_delete(self, all=False):
         if all:
-           pass
-        try:
-            LQSutra.objects.get(id__exact=self.id).delete()
-        except LQSutra.DoesNotExist as e:
+            # 额外相关的删除
             pass
+        # try:
+        #     LQSutra.objects.get(id__exact=self.id).delete()
+        # except LQSutra.DoesNotExist as e:
+        #     pass
 
     def __str__(self):
         return self.code

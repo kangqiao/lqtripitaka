@@ -61,6 +61,10 @@ class BaseResource(ModelResource):
         self._line_num = self._line_num + 1
         row[self.fields['line_num'].column_name] = self._line_num
 
+    def set_skip_row(self, row, instance):
+        if row:
+            row['操作'] = 'skip'
+
     def after_import_instance(self, instance, new, **kwargs):
         if instance:
             instance.line_num = self._line_num
@@ -68,27 +72,35 @@ class BaseResource(ModelResource):
     def for_delete(self, row, instance):
         value = row.get(u'操作', '')
         if value and (value == u'全部删除' or value.lower() == 'all delete' or value.lower() == 'all del'):
-            if instance:
-                instance.delete_instance(all=True)
+            # if instance:
+            #     instance.delete_instance(all=True)
+            instance._delete_all = True
             return True
         if value and (value == u'删除' or value.lower() == 'delete' or value.lower() == 'del'):
-            if instance:
-                instance.delete_instance(all=False)
+            # if instance:
+            #     instance.delete_instance(all=False)
+            instance._delete_all = False
             return True
-        elif value and (value == u'跳过' or value.lower() == 'skip'):
+        elif value and (value == u'跳过' or value == u'忽略' or value.lower() == 'skip'):
             return True
         return False
+
+    def before_delete_instance(self, instance, dry_run):
+        if dry_run:
+            pass
+        elif hasattr(instance, 'before_delete'):
+            instance.before_delete(all=getattr(instance, '_delete_all', False))
 
     def before_save_instance(self, instance, using_transactions, dry_run):
         if not using_transactions and dry_run:
             pass
-        else:
+        elif hasattr(instance, 'before_save'):
             instance.before_save()
 
     def after_save_instance(self, instance, using_transactions, dry_run):
         if not using_transactions and dry_run:
             pass
-        else:
+        elif hasattr(instance, 'after_save'):
             instance.after_save()
 
 '''
@@ -151,30 +163,34 @@ class RollResource(BaseResource):
     def before_import_row(self, row, **kwargs):
         super(RollResource, self).before_import_row(row, **kwargs)
         sutra_code = row[self.fields['sutra'].column_name]
+        if sutra_code is None:
+            self.set_skip_row(row, None)
+            return
         series_code = getFirstCharCode(sutra_code)
+        if series_code is None:
+            self.set_skip_row(row, None)
+            return
         # 卷的前缀
-        self.fields['code'].widget._prefix = sutra_code + '_R'
-        re_roll_prefix = re.compile(r'^(?P<series>' + series_code + ')_R(?P<value>\d+)$', re.I)
-        self.fields['code'].widget._prefix_re = re_roll_prefix
         code = str(row[self.fields['code'].column_name])
+        if code is None or code.lower() == 'none':
+            self.set_skip_row(row, None)
+            return
         if code == "0":
             remark = str(row[self.fields['remark'].column_name])
             preface_re = re.compile(r'(?P<preface>序|总序|原序|总目|跋|勘误表)', re.M)
             m = preface_re.search(remark)
             name = m.group("preface") if m else ""
+            self.fields['code'].widget._prefix = sutra_code + '_X'
+        else:
+            self.fields['code'].widget._prefix = sutra_code + '_R'
+
         # 册的前缀
         volume_prefix = series_code + '_V'
         self.fields['start_volume'].widget._prefix = volume_prefix
         self.fields['end_volume'].widget._prefix = volume_prefix
-        re_volume_prefix = re.compile(r'^(?P<series>' + series_code + ')_V(?P<value>\d+)$', re.I)
-        self.fields['start_volume'].widget._prefix_re = re_volume_prefix
-        self.fields['end_volume'].widget._prefix_re = re_volume_prefix
         # 页的前缀
         self.fields['start_page'].widget._prefix = volume_prefix + str(row[self.fields['start_volume'].column_name]) + '_P'
         self.fields['end_page'].widget._prefix = volume_prefix + str(row[self.fields['end_volume'].column_name]) + '_P'
-        re_page_prefix = re.compile(r'^(?P<series>' + series_code + ')_V(?P<volume>\d+)_P(?P<value>\d+)$', re.I)
-        self.fields['start_page'].widget._prefix_re = re_page_prefix
-        self.fields['end_page'].widget._prefix_re = re_page_prefix
 
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         if using_transactions:
@@ -252,7 +268,13 @@ class SutraResource(BaseResource):
         super(SutraResource, self).before_import_row(row, **kwargs)
         # 卷的前缀
         sutra_code = row[self.fields['code'].column_name]
+        if sutra_code is None:
+            self.set_skip_row(row, None)
+            return
         series_code = getFirstCharCode(sutra_code)
+        if series_code is None:
+            self.set_skip_row(row, None)
+            return
         # 册的前缀
         volume_prefix = series_code + '_V'
         self.fields['start_volume'].widget._prefix = volume_prefix
@@ -314,8 +336,13 @@ class LQSutraResource(BaseResource):
 
     def before_import_row(self, row, **kwargs):
         super(LQSutraResource, self).before_import_row(row, **kwargs)
+        lqsutra_code = row[self.fields['code'].column_name]
+        if lqsutra_code is None:
+            self.set_skip_row(row, None)
+            return
+        prefix = getFirstCharCode(lqsutra_code)
         # 卷的前缀
-        self.fields['code'].widget._prefix = 'LQ'
+        self.fields['code'].widget._prefix = prefix if prefix else 'LQ'
 
 class LQSutraAdmin(ImportMixin, admin.ModelAdmin):
     def real_sutra_count(self, instance):
