@@ -2,15 +2,36 @@
 __author__ = 'zhaopan'
 
 import re
-import operator
 
+TYPE_CHOICES = (
+    ('roll', '卷'),
+    ('preface', '序'),
+    ('all_preface', '总序'),
+    ('origin_preface', '原序'),
+    ('catalogue', '总目'),
+    ('postscript', '跋'),
+    ('corrigenda', "勘误表")
+)
 
-def roll_type(code=""):
-    '''
-    根据code字符串去过滤出卷的类型
-    :return: 返回卷的类型 @ref[Roll.TYPE_CHOICE]
-    '''
-    #return Roll.TYPE_CHOICES[0][0]
+origin_roll_type_dict = dict(TYPE_CHOICES)
+preface_re = re.compile(r'(?P<type>' +'|'.join(origin_roll_type_dict.values()) + ')', re.M)
+roll_type_dict = dict([(v,k) for k,v in origin_roll_type_dict.items()])
+def get_roll_type(str, default='序'):
+    if str is None:
+        return default
+    m = preface_re.search(str)
+    val = m.group('type') if m else default
+    return roll_type_dict.get(val, 'preface')
+
+def get_roll_type_desc(type, default='序'):
+    return origin_roll_type_dict.get(type, default)
+
+roll_type_re = re.compile(r'\w+_(?P<type>[a-zA-Z]+)')
+def extract_roll_type(code, default='preface'):
+    if code is None:
+        return default
+    m = roll_type_re.search(code)
+    return m.group('type') if m else default
 
 last_code_re = re.compile(r'\D+(?P<code>\d+)$')
 def getLastIntCode(str, default=0):

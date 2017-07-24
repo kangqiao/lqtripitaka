@@ -31,7 +31,7 @@ class MainDashboard(object):
             {"type": "qbutton", "title": "藏经版本Excel导入四部曲","btns": [
                 {"title": "龙泉经目导入", "url": "/admin/core/lqsutra/import/"},
                 {"title": "创建版本信息", "url": "/xadmin/core/series/add/"},
-                {"title": "经目导入", "url": "/admin/core/lustra/import/"},
+                {"title": "经目导入", "url": "/admin/core/sutra/import/"},
                 {"title": "卷详目导入", "url": "/admin/core/roll/import/"}]},
             #{"type": "addform", "model": Series},
             {"type": "list", "model": "core.Sutra", "params": {"o": "-code"}}
@@ -88,9 +88,9 @@ class SeriesAdmin(object):
     real_roll_count.is_column = True
 
     def real_page_count(self, instance):
-        count = Page.objects.filter(series=instance.id).count()
+        count = Page.objects.filter(series=instance.code).count()
         if count > 0:
-            return """<a href='/xadmin/core/page/?_p_series__code__exact=%s'>%s</a>""" % (instance.code, count)
+            return """<a href='/xadmin/core/page/?_p_series__contains=%s'>%s</a>""" % (instance.code, count)
         return count
     real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
@@ -114,7 +114,7 @@ class VolumeAdmin(object):
     def real_page_count(self, instance):
         count = Page.objects.filter(volume=instance.code).count()
         if count > 0:
-            return """<a href='/xadmin/core/page/?_p_volume__code__exact=%s'>%s</a>""" % (instance.code, count)
+            return """<a href='/xadmin/core/page/?_p_volume__contains=%s'>%s</a>""" % (instance.code, count)
         return count
     real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
@@ -142,7 +142,7 @@ class SutraAdmin(object):
     def real_page_count(self, instance):
         count = Page.objects.filter(sutra=instance.id).count()
         if count > 0:
-            return """<a href='/xadmin/core/page/?_p_sutra__code__exact=%s'>%s</a>""" % (instance.code, count)
+            return """<a href='/xadmin/core/page/?_p_sutra__contains=%s'>%s</a>""" % (instance.code, count)
         return count
     real_page_count.short_description = "实存页数"
     real_page_count.allow_tags = True
@@ -185,7 +185,7 @@ class PageAdmin(object):
     open_page_resource.is_column = True
 
     list_display = ("code", "name", "type", "series", "volume", "sutra", "roll", "open_page_resource")
-    list_display_links = ("code", "name", "series", "volume", "sutra", "roll",)
+    list_display_links = ("code", "name",)
 
     relfield_style = "fk-select"
     style_fields = {"system": "radio-inline"}

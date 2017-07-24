@@ -7,7 +7,7 @@ from import_export import fields
 from import_export.widgets import Widget, ForeignKeyWidget, ManyToManyWidget
 from .models import *
 from django.db.models.fields import NOT_PROVIDED
-from .utils import getFirstCharCode
+from .utils import getFirstCharCode, get_roll_type
 
 class CodeConvertWidget(Widget):
     def clean(self, value, row=None, *args, **kwargs):
@@ -177,10 +177,8 @@ class RollResource(BaseResource):
             return
         if code == "0":
             remark = str(row[self.fields['remark'].column_name])
-            preface_re = re.compile(r'(?P<preface>序|总序|原序|总目|跋|勘误表)', re.M)
-            m = preface_re.search(remark)
-            name = m.group("preface") if m else ""
-            self.fields['code'].widget._prefix = sutra_code + '_X'
+            val = get_roll_type(remark, "序")
+            self.fields['code'].widget._prefix = sutra_code + '_'+val
         else:
             self.fields['code'].widget._prefix = sutra_code + '_R'
 

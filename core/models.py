@@ -4,14 +4,11 @@ from django.db import models
 
 from django.db import models
 import uuid
-from .utils import roll_type, getLastIntCode, getFirstCharCode, call_delete_instance, get_instance
-import re
-import operator
+from .utils import TYPE_CHOICES, extract_roll_type, get_roll_type_desc, getLastIntCode, getFirstCharCode, call_delete_instance, get_instance
 '''
 [Django API](https://docs.djangoproject.com/en/1.11/)
 [Django中null和blank的区别](http://www.tuicool.com/articles/2ABJbmj)
 '''
-
 
 class Series(models.Model):
     SERIES = 'SS'
@@ -210,15 +207,6 @@ class Sutra(models.Model):
 
 
 class Roll(models.Model):
-    TYPE_CHOICES = (
-        ('roll', '卷'),
-        ('preface', '序'),
-        ('all_preface', '总序'),
-        ('origin_preface', '原序'),
-        ('catalogue', '总目'),
-        ('postscript', '跋'),
-        ('corrigenda', "勘误表")
-    )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='卷名')
@@ -239,8 +227,13 @@ class Roll(models.Model):
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def before_save(self):
-        self.name = str(getLastIntCode(self.code))
-        #self.type = roll_type(self.code)
+        code = str(getLastIntCode(self.code))
+        if code == '0':
+            self.type = extract_roll_type(self.code)
+            self.name = get_roll_type_desc(self.type)
+        else:
+            self.name = code
+            # self.type = roll_type(self.code) #默认卷
 
         if self.sutra:
             self.sutra.save_by_roll(self)
@@ -274,7 +267,7 @@ class Roll(models.Model):
                 page.delete_instance(all)
 
     def __str__(self):
-        return self.name
+        return self.code
 
     class Meta:
         verbose_name = u"卷"
@@ -320,6 +313,7 @@ class Page(models.Model):
     next_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='下一页')
 
     def save_by_roll(self, roll):
+        self.name = getLastIntCode(self.code)
         self.roll = roll
         self.volume = roll.start_volume
         self.sutra = roll.sutra.code
@@ -337,7 +331,7 @@ class Page(models.Model):
             pass
 
     def __str__(self):
-        return self.name
+        return self.code
 
     class Meta:
         verbose_name = u"页"

@@ -4,7 +4,7 @@ from django.db import models
 
 from django.db import models
 import uuid
-from .utils import roll_type, getLastIntCode
+from .utils import getLastIntCode
 import re
 import operator
 '''
