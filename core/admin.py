@@ -163,16 +163,16 @@ class RollResource(BaseResource):
     def before_import_row(self, row, **kwargs):
         super(RollResource, self).before_import_row(row, **kwargs)
         sutra_code = row[self.fields['sutra'].column_name]
-        if sutra_code is None:
+        if not sutra_code:
             self.set_skip_row(row, None)
             return
         series_code = getFirstCharCode(sutra_code)
-        if series_code is None:
+        if not series_code:
             self.set_skip_row(row, None)
             return
         # 卷的前缀
         code = str(row[self.fields['code'].column_name])
-        if code is None or code.lower() == 'none':
+        if not code or code.lower() == 'none':
             self.set_skip_row(row, None)
             return
         if code == "0":
@@ -266,11 +266,11 @@ class SutraResource(BaseResource):
         super(SutraResource, self).before_import_row(row, **kwargs)
         # 卷的前缀
         sutra_code = row[self.fields['code'].column_name]
-        if sutra_code is None:
+        if not sutra_code:
             self.set_skip_row(row, None)
             return
         series_code = getFirstCharCode(sutra_code)
-        if series_code is None:
+        if not series_code:
             self.set_skip_row(row, None)
             return
         # 册的前缀
@@ -335,7 +335,7 @@ class LQSutraResource(BaseResource):
     def before_import_row(self, row, **kwargs):
         super(LQSutraResource, self).before_import_row(row, **kwargs)
         lqsutra_code = row[self.fields['code'].column_name]
-        if lqsutra_code is None:
+        if not lqsutra_code:
             self.set_skip_row(row, None)
             return
         prefix = getFirstCharCode(lqsutra_code)

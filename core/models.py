@@ -4,10 +4,13 @@ from django.db import models
 
 from django.db import models
 import uuid
-from .utils import TYPE_CHOICES, extract_roll_type, get_roll_type_desc, getLastIntCode, getFirstCharCode, call_delete_instance, get_instance
+from .utils import ROLL_TYPE_CHOICES, SUTRA_TYPE_CHOICES, get_sutra_type, extract_roll_type, get_roll_type_desc, getLastIntCode, getFirstCharCode, call_delete_instance, get_instance
 '''
 [Django API](https://docs.djangoproject.com/en/1.11/)
 [Django中null和blank的区别](http://www.tuicool.com/articles/2ABJbmj)
+Django 数据库访问性能优化
+http://www.voidcn.com/blog/permike/article/p-6172184.html
+注：django对model中的fk和unique = True的字段将自动创建索引。
 '''
 
 class Series(models.Model):
@@ -18,7 +21,7 @@ class Series(models.Model):
         (OFFPRINT, '单行本'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='版本名')
     type = models.CharField(
         max_length=2,
@@ -53,7 +56,7 @@ class Series(models.Model):
 
 class Volume(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='册名')
     series = models.ForeignKey(Series, null=True, blank=True, related_name='volumes', on_delete=models.SET_NULL, verbose_name='版本')
     page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
@@ -98,21 +101,14 @@ class Volume(models.Model):
 
 
 class Sutra(models.Model):
-    SUTTA = 'ST'
-    RESTRAIN = 'RT'
-    TREATISE = 'TT'
-    TYPE_CHOICES = (
-        (SUTTA, '经'),
-        (RESTRAIN, '律'),
-        (TREATISE, '论'),
-    )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='经名')
     type = models.CharField(
+        db_index=True,
         max_length=2,
-        choices=TYPE_CHOICES,
-        default=SUTTA,
+        choices=SUTRA_TYPE_CHOICES,
+        default='ST',
         verbose_name='类型'
     )
     series = models.ForeignKey(Series, null=True, blank=True, related_name='sutras', on_delete=models.SET_NULL, verbose_name='版本')
@@ -133,7 +129,7 @@ class Sutra(models.Model):
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
     def before_save(self):
-        # self.type = sutra_type(self.code)
+        self.type = get_sutra_type(self.remark)
         if self.series is None:
             code = getFirstCharCode(self.code)
             if code:
@@ -208,11 +204,12 @@ class Sutra(models.Model):
 
 class Roll(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, blank=True, db_index=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='卷名')
     type = models.CharField(
+        db_index=True,
         max_length=16,
-        choices=TYPE_CHOICES,
+        choices=ROLL_TYPE_CHOICES,
         default='roll',
         verbose_name='类型'
     )
@@ -293,7 +290,7 @@ class Page(models.Model):
         (CONTENT, '内容'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True, blank=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='页码')
     type = models.CharField(
         max_length=8,
@@ -306,9 +303,9 @@ class Page(models.Model):
     # sutra = models.ForeignKey(Sutra, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='经')
     roll = models.ForeignKey(Roll, null=True, blank=True, related_name='pages', on_delete=models.SET_NULL, verbose_name='卷')
     # roll = models.CharField(max_length=64, null=True, blank=True, verbose_name='卷')
-    series = models.CharField(max_length=64, null=True, blank=True, verbose_name='部')
-    volume = models.CharField(max_length=64, null=True, blank=True, verbose_name='册')
-    sutra = models.CharField(max_length=64, null=True, blank=True, verbose_name='经')
+    series = models.CharField(max_length=64, null=True, blank=True, db_index=True, verbose_name='部')
+    volume = models.CharField(max_length=64, null=True, blank=True, db_index=True, verbose_name='册')
+    sutra = models.CharField(max_length=64, null=True, blank=True, db_index=True, verbose_name='经')
     pre_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='上一页')
     next_page = models.CharField(max_length=64, null=True, blank=True, verbose_name='下一页')
 
@@ -351,9 +348,10 @@ class PageResource(models.Model):
         (PDF, 'PDF'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    #foreign_code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='资源来源')
+    #foreign_code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='资源来源')
     page = models.ForeignKey(Page, related_name='page_resources', on_delete=models.CASCADE, verbose_name='页')
     type = models.CharField(
+        db_index=True,
         max_length=8,
         choices=TYPE_CHOICES,
         default=IMAGE,
@@ -368,6 +366,7 @@ class PageResource(models.Model):
         (NETWORK, '网络采集'),
     )
     source = models.CharField(
+        db_index=True,
         max_length=8,
         choices=SOURCE_CHOICES,
         default=HANDWORK,
@@ -395,7 +394,7 @@ class Translator(models.Model):
         (AUTHOR, '作者'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=64, verbose_name='作译者名字')
+    name = models.CharField(max_length=64, db_index=True, verbose_name='作译者名字')
     type = models.CharField(
         max_length=2,
         choices=TYPE_CHOICES,
@@ -413,8 +412,8 @@ class Translator(models.Model):
 
 class LQSutra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, blank=True, verbose_name='龙泉编码')
-    name = models.CharField(max_length=64, verbose_name='龙泉经名')
+    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='龙泉编码')
+    name = models.CharField(max_length=64, db_index=True, verbose_name='龙泉经名')
     translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
     roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
@@ -457,7 +456,7 @@ NORM_TYPE_CHOICES = (
 
 class NormName(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=64, verbose_name='标准名')
+    name = models.CharField(max_length=64, db_index=True, verbose_name='标准名')
     type = models.CharField(
         max_length=8,
         choices=NORM_TYPE_CHOICES,
@@ -481,7 +480,7 @@ class NormNameMap(models.Model):
         default=SUTRA,
         verbose_name='标准类型'
     )
-    name = models.CharField(max_length=64, verbose_name='名字')
+    name = models.CharField(max_length=64, db_index=True, verbose_name='名字')
     norm_name = models.ForeignKey(NormName, related_name='map_list', on_delete=models.CASCADE, verbose_name='隶属标准名')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
 
