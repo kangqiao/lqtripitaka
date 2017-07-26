@@ -121,7 +121,7 @@ class RollResource(BaseResource):
         readonly=False)
     sutra__lqsutra = TwoNestedField(
         nested_field=sutra,
-        column_name=u'龙泉收录',
+        column_name=u'龙泉编码',
         attribute='sutra__lqsutra',
         widget=MyForeignKeyWidget(LQSutra, 'code'))
     code = fields.Field(

@@ -21,7 +21,7 @@ class Series(models.Model):
         (OFFPRINT, '单行本'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='版本名')
     type = models.CharField(
         max_length=2,
@@ -56,7 +56,7 @@ class Series(models.Model):
 
 class Volume(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='册名')
     series = models.ForeignKey(Series, null=True, blank=True, related_name='volumes', on_delete=models.SET_NULL, verbose_name='版本')
     page_count = models.IntegerField(null=True, blank=True, verbose_name='页数')
@@ -102,7 +102,7 @@ class Volume(models.Model):
 
 class Sutra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='经名')
     type = models.CharField(
         db_index=True,
@@ -204,7 +204,7 @@ class Sutra(models.Model):
 
 class Roll(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, blank=True, db_index=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='卷名')
     type = models.CharField(
         db_index=True,
@@ -290,7 +290,7 @@ class Page(models.Model):
         (CONTENT, '内容'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, db_index=True, blank=True, verbose_name='编号')
+    code = models.CharField(max_length=64, unique=True, db_index=True, verbose_name='编号')
     name = models.CharField(max_length=64, verbose_name='页码')
     type = models.CharField(
         max_length=8,
@@ -348,7 +348,7 @@ class PageResource(models.Model):
         (PDF, 'PDF'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    #foreign_code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='资源来源')
+    #foreign_code = models.CharField(max_length=64, unique=True, db_index=True,  verbose_name='资源来源')
     page = models.ForeignKey(Page, related_name='page_resources', on_delete=models.CASCADE, verbose_name='页')
     type = models.CharField(
         db_index=True,
@@ -412,7 +412,7 @@ class Translator(models.Model):
 
 class LQSutra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, unique=True, db_index=True,  blank=True, verbose_name='龙泉编码')
+    code = models.CharField(max_length=64, unique=True, db_index=True, verbose_name='龙泉编码')
     name = models.CharField(max_length=64, db_index=True, verbose_name='龙泉经名')
     translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
     roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
