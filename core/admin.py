@@ -54,7 +54,7 @@ class TwoNestedField(fields.Field):
 class BaseResource(ModelResource):
     def __init__(self):
         super(BaseResource, self).__init__()
-        self._line_num = 0
+        self._line_num = 1
 
     def before_import_row(self, row, **kwargs):
         # 根据row为每个字段生成前缀
