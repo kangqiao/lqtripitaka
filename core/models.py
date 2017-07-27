@@ -8,9 +8,13 @@ from .utils import ROLL_TYPE_CHOICES, SUTRA_TYPE_CHOICES, get_sutra_type, extrac
 '''
 [Django API](https://docs.djangoproject.com/en/1.11/)
 [Django中null和blank的区别](http://www.tuicool.com/articles/2ABJbmj)
+
 Django 数据库访问性能优化
 http://www.voidcn.com/blog/permike/article/p-6172184.html
 注：django对model中的fk和unique = True的字段将自动创建索引。
+
+Django 优化杂谈
+https://zhu327.github.io/2017/04/21/django-%E4%BC%98%E5%8C%96%E6%9D%82%E8%B0%88/
 '''
 
 class Series(models.Model):
