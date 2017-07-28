@@ -15,6 +15,10 @@ import os
 import os.path
 from django.utils import six
 
+# Python的最大递归深度错误
+# http://leyex.blog.51cto.com/4230949/1884041
+# https://cyrusin.github.io/2015/12/08/python-20151208/
+sys.setrecursionlimit(5000)
 # mysql 数据库
 import pymysql
 
@@ -63,7 +67,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-
+    'import_export',
     'xadmin',
     'crispy_forms',
     'reversion',
@@ -252,11 +256,11 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
 # Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+# STATICFILES_DIRS = (
+#     # Put strings here, like "/home/html/static" or "C:/www/django/static".
+#     # Always use forward slashes, even on Windows.
+#     # Don't forget to use absolute paths, not relative paths.
+# )
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -265,3 +269,10 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+
+XADMIN_TITLE = _(u"龙泉大藏经")
+XADMIN_FOOTER_TITLE = _(u"北京 龙泉寺-AIITC.inc")
+
+from import_export.tmp_storages import MediaStorage
+MediaStorage.MEDIA_FOLDER = os.path.join(MEDIA_ROOT, 'import_export')
+IMPORT_EXPORT_TMP_STORAGE_CLASS = MediaStorage

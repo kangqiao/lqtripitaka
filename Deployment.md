@@ -54,20 +54,26 @@ docker-compose -v
 ```bash
 docker-compose up -d
 ```
+注: 重新部署时, 建议先停止运行的容器, 删除容器, 删除镜像, 然后再执行上面的命令.
 
 ### 5.同步数据库
 ```bash
-docker-compose run web_tripitaka /usr/local/bin/python manage.py makemigrations
+docker-compose run web_tripitaka /usr/local/bin/python manage.py makemigrations 
+docker-compose exec web_tripitaka /usr/local/bin/python manage.py makemigrations
 docker-compose run web_tripitaka /usr/local/bin/python manage.py migrate
+docker-compose exec web_tripitaka /usr/local/bin/python manage.py migrate
 ```
+注意 centOS6 docker-compose 1.5.2 环境下用 `docker-compose run` 在容器中执行命令.
+centOS7 下用 `docker-compose exec`
 
 ### 6.收集样式
 ```bash
 docker-compose run web_tripitaka /usr/local/bin/python manage.py collectstatic
 ```
 
-### 7. 导入初始数据
+### 7. 导入测试数据
 ```
+[可选] 正常部署不需要导入
 docker-compose run web_tripitaka  python manage.py loaddata data.json
 ```
 
@@ -78,7 +84,7 @@ docker-compose run web_tripitaka  python manage.py loaddata data.json
 - 你也可以用 Docker 作为本地的开发环境，这个时候应使用应修改 `manage.py`, 使用 `settingsdev.py` 而不是 `settings.py`
 - 登录 admin 后台时前，别忘了先创建超级用户
 ```bash
-docker-compose run lq_tripitaka python manage.py createsuperuser
+docker-compose run web_tripitaka python manage.py createsuperuser
 Username (leave blank to use 'root'): admin
 Email address: admin@126.com
 Password: admin

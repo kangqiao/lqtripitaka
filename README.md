@@ -69,6 +69,7 @@ password: admin
 ~ python manage.py collectstatic
 ~ python manage.py runserver
 ```
+![PyCharm IDE开发配置](./conf/pycharm_config.png)
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api) in your browser, the admin user password is admin
 
