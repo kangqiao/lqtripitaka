@@ -273,6 +273,10 @@ class SutraResource(BaseResource):
         if not series_code:
             self.set_skip_row(row, None)
             return
+        sutra_name = row[self.fields['name'].column_name]
+        if not sutra_name:
+            self.set_skip_row(row, None)
+            return
         # 册的前缀
         volume_prefix = series_code + '_V'
         self.fields['start_volume'].widget._prefix = volume_prefix
@@ -336,6 +340,10 @@ class LQSutraResource(BaseResource):
         super(LQSutraResource, self).before_import_row(row, **kwargs)
         lqsutra_code = row[self.fields['code'].column_name]
         if not lqsutra_code:
+            self.set_skip_row(row, None)
+            return
+        lqsutra_name = row[self.fields['name'].column_name]
+        if not lqsutra_name:
             self.set_skip_row(row, None)
             return
         prefix = getFirstCharCode(lqsutra_code)

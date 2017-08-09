@@ -60,10 +60,10 @@ def getLastIntCode(str, default=0):
     return int(m.group('code')) if m else default
 
 pre_code_re = re.compile(r'^(?P<code>[a-zA-Z]+)\d+\w*$')
-def getFirstCharCode(str, default=''):
-    if not str:
+def getFirstCharCode(codestr, default=''):
+    if not codestr:
         return default
-    m = pre_code_re.search(str)
+    m = pre_code_re.search(str(codestr))
     return m.group('code') if m else default
 
 def call_delete_instance(code, model, all=False):

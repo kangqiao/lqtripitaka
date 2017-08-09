@@ -398,7 +398,7 @@ class Translator(models.Model):
         (AUTHOR, '作者'),
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=64, db_index=True, verbose_name='作译者名字')
+    name = models.CharField(max_length=256, db_index=True, verbose_name='作译者名字')
     type = models.CharField(
         max_length=2,
         choices=TYPE_CHOICES,
@@ -417,7 +417,7 @@ class Translator(models.Model):
 class LQSutra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=64, unique=True, db_index=True, verbose_name='龙泉编码')
-    name = models.CharField(max_length=64, db_index=True, verbose_name='龙泉经名')
+    name = models.CharField(max_length=256, db_index=True, verbose_name='龙泉经名')
     translator = models.ForeignKey('Translator', null=True, blank=True, verbose_name='作译者')
     roll_count = models.IntegerField(null=True, blank=True, verbose_name='卷数')
     remark = models.TextField(null=True, blank=True, verbose_name='备注')
