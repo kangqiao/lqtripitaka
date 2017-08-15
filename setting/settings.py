@@ -57,6 +57,9 @@ MANAGERS = ADMINS
 
 ALLOWED_HOSTS = ['*']
 
+# 跨域问题
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -78,6 +81,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -95,6 +99,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(PROJECT_ROOT, "templates"),
+            os.path.join(PROJECT_ROOT, "frontend/dist"),
             ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -261,6 +266,10 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 #     # Always use forward slashes, even on Windows.
 #     # Don't forget to use absolute paths, not relative paths.
 # )
+# Add for vuejs
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_ROOT, 'frontend/dist/static'),
+]
 
 # List of finder classes that know how to find static files in
 # various locations.

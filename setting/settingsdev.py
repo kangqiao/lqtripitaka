@@ -19,6 +19,7 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 # 如果 DEBUG 为 False 这里就会失效，需要用 NGIX 代理
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
+    os.path.join(PROJECT_ROOT, 'frontend/dist/static'),
 ]
 
 INSTALLED_APPS.append('debug_toolbar')
