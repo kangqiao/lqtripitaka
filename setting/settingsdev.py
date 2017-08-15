@@ -22,6 +22,9 @@ STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'frontend/dist/static'),
 ]
 
+# 开发环境开启跨域
+CORS_ORIGIN_ALLOW_ALL = True
+
 INSTALLED_APPS.append('debug_toolbar')
 MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 

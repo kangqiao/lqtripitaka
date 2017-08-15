@@ -57,8 +57,8 @@ MANAGERS = ADMINS
 
 ALLOWED_HOSTS = ['*']
 
-# 跨域问题
-CORS_ORIGIN_ALLOW_ALL = True
+# 生产环境不开启跨域 https://zhuanlan.zhihu.com/p/25080236
+CORS_ORIGIN_ALLOW_ALL = False
 
 # Application definition
 
