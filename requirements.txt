@@ -30,3 +30,4 @@ xlrd==1.0.0
 xlwt==1.2.0
 # 在Django层注入header，用Django的第三方包 django-cors-headers 来解决跨域问题
 django-cors-headers
+django-cacheops

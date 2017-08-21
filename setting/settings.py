@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'xadmin',
     'crispy_forms',
     'reversion',
+    'cacheops',
 
     'core',
 ]
@@ -285,3 +286,19 @@ XADMIN_FOOTER_TITLE = _(u"北京 龙泉寺-AIITC.inc")
 from import_export.tmp_storages import MediaStorage
 MediaStorage.MEDIA_FOLDER = os.path.join(MEDIA_ROOT, 'import_export')
 IMPORT_EXPORT_TMP_STORAGE_CLASS = MediaStorage
+
+
+CACHEOPS_DEGRADE_ON_FAILURE = bool(os.environ.get('CACHEOPS_DEGRADE_ON_FAILURE'))
+
+CACHEOPS_REDIS = {
+    'host': 'localhost',
+    'port': 6379,
+    'db': 13,
+    'socket_timeout': 3,
+}
+CACHEOPS_DEFAULTS = {
+    'timeout': 60*60
+}
+CACHEOPS = {
+    'core.*': {'timeout': 60*60, 'ops': 'all'},
+}
