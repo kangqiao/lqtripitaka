@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'footer',
+  name: 'ifooter',
   data () {
     return {
       msg: 'Welcome to Your Vue.js App'
