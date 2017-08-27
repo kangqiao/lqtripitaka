@@ -7,25 +7,23 @@
 
 QQ: 279197764
 
-Demo:
- 
- [后台管理入口](http://dev-version.lqdzj.cn/xadmin/)  
- [REST API 接口列表](http://dev-version.lqdzj.cn/api/)
+#### [Docker 生产环境部署文档](./Deployment.md)
+
+#### 开发环境:
+- [版本管理管理入口](http://dev-version.lqdzj.cn/xadmin/)  admin/admin
+- [版本REST API 接口列表](http://dev-version.lqdzj.cn/api/)
 
 
-[生产环境部署文档](./Deployment.md)
+### 开发环境部署
 
-
-## 开发环境部署
-
-### 环境
-- Python 3.6.1
+##### 环境
 - Django 1.11.2
 - xadmin 0.6.1
+- Mysql 5.7
 
 [Dependent packages](./requirements.txt)
 
-### Install
+##### Install
 通过virtualenv安装依赖包
 ```
 ~ git clone git@github.com:kangqiao/lqtripitaka.git
@@ -47,7 +45,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 ```
 
-### Create admin
+##### Create admin
 ```
 ~ cd lqtripitaka
 ~ python manage.py createsuperuser
@@ -56,7 +54,7 @@ e-mail: admin@126.com
 password: admin 
 ```
 
-### Initialization
+##### Initialization
 ```
 ~ cd lqtripitaka
 ~ workon lqtripitaka #激活已创建的lqtripitaka环境
@@ -73,6 +71,7 @@ password: admin
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api) in your browser, the admin user password is admin
 
+### 展示:
 ![xadmin 首页](./conf/lqtripitaka_xmain.png)
 
 ![API 首页](./conf/lqtripitaka_api.png)

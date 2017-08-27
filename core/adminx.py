@@ -28,7 +28,7 @@ class MainDashboard(object):
             {"type": "chart", "model": "core.accessrecord", "chart": "user_count","params": {"_p_date__gte": "2017-01-01", "p": 1, "_p_date__lt": "2017-06-16"}},
         ],
         [
-            {"type": "qbutton", "title": "藏经版本Excel导入四部曲","btns": [
+            {"type": "qbutton", "title": "藏经版本Excel导入四步曲","btns": [
                 {"title": "龙泉经目导入", "url": "/admin/core/lqsutra/import/"},
                 {"title": "创建版本信息", "url": "/xadmin/core/series/add/"},
                 {"title": "经目导入", "url": "/admin/core/sutra/import/"},
