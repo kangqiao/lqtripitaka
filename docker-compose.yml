@@ -11,6 +11,11 @@ mysql-tripitaka:
     - MYSQL_DATABASE=lqtripitaka
     - MYSQL_ROOT_PASSWORD=root
 
+#redis-tripitaka:
+#  image: redis
+#  ports:
+#    - "6379:6379"
+
 nginx-tripitaka:
   restart: always
   image: nginx
@@ -33,6 +38,10 @@ web_tripitaka:
   links:
     - mysql-tripitaka:mysql_tripitaka
   command: uwsgi -s :8000 -w setting.wsgi -p 3
+
+#  depends_on:
+#  - mysql-tripitaka
+#  - redis-tripitaka
 
 
 

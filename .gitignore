@@ -3,6 +3,7 @@
 *.ipr
 *.iws
 .idea/
+.vscode/
 
 # gradle
 #build/

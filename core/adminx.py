@@ -215,7 +215,7 @@ class LQSutraAdmin(object):
         list = instance.lqsutra_list.all()
         ret = """<a href="/xadmin/core/sutra/?_p_lqsutra__id__exact=%s" >""" % instance.id
         for sutra in list:
-            ret += """%s | """ % sutra.code
+            ret += """[%s | %s]""" % (sutra.code, sutra.name)
         ret += """</a>"""
         return ret
     show_lqsutra_list.short_description = "龙泉收录"
